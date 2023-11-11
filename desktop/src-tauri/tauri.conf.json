@@ -1,13 +1,12 @@
 {
   "build": {
-    "beforeDevCommand": "trunk serve",
-    "beforeBuildCommand": "trunk build",
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
     "devPath": "http://localhost:1420",
-    "distDir": "../dist",
-    "withGlobalTauri": true
+    "distDir": "../dist"
   },
   "package": {
-    "productName": "desktop",
+    "productName": "pomotimer",
     "version": "0.0.0"
   },
   "tauri": {
@@ -21,7 +20,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "dev.rithul.pomotimer",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -37,7 +36,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "desktop",
+        "title": "Pomotimer",
         "width": 800,
         "height": 600
       }
