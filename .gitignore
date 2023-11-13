@@ -23,5 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# Golang
-**/tmp/
+# Project Stuff
+pomotimer.db
+prisma.rs
+
+# Added by cargo
+/target
