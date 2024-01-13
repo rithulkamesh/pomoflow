@@ -1,6 +1,10 @@
 # C++ Binaries
 bin/
 
+# backend (Pocketbase)
+pocketbase
+pb_data
+
 # dependencies
 node_modules
 .pnp

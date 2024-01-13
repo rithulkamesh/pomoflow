@@ -13,6 +13,7 @@ This allows your friends to work or study collaboratively.
 
 Serves as the backend for the entire application. Written with go for simplicity
 Connects the clients using websockets to provide a syncable-pomodoro functionality.
+Extends pocketbase to allow for lesser work in terms of auth, file store, and database.
 
 2. chrome/
 
