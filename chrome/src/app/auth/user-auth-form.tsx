@@ -6,9 +6,11 @@ import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { FaDiscord, FaGoogle, FaSpinner } from 'react-icons/fa6';
+import { FaDiscord, FaGoogle, FaPaperPlane, FaSpinner } from 'react-icons/fa6';
 import { createBrowserClient } from '@/lib/pocketbase';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/use-toast';
+import { FaSignInAlt } from 'react-icons/fa';
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -16,18 +18,39 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const pb = createBrowserClient();
   const router = useRouter();
+  const { toast } = useToast();
   const [email, setEmail] = useState<string>('');
+  const [stepTwo, setStepTwo] = useState<boolean>(false);
+  const [code, setCode] = useState<string>('');
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
-    setIsLoading(true);
+    if (email === '')
+      return toast({
+        title: 'Invalid Email.',
+        description: 'Please enter a valid email address.',
+      });
+
+    if (!stepTwo) {
+      setStepTwo(true);
+      // TODO: Implement logic to send Emails
+      toast({
+        title: 'Email Sent.',
+        description: 'Please check your email for a sign-in code.',
+      });
+      return setIsLoading(true);
+    }
+
+    // TODO: Implement logic to verify code
   }
 
   async function oAuth(event: React.SyntheticEvent, provider: string) {
     event.preventDefault();
     setIsLoading(true);
 
-    await pb.collection('users').authWithOAuth2({ provider });
+    const authData = await pb.collection('users').authWithOAuth2({ provider });
+
+    if (authData) router.push('/');
   }
 
   useEffect(() => {
@@ -44,20 +67,64 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             <Label className='sr-only' htmlFor='email'>
               Email
             </Label>
-            <Input
-              id='email'
-              placeholder='hi@rithul.dev'
-              type='email'
-              autoCapitalize='none'
-              autoComplete='email'
-              autoCorrect='off'
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
-            />
+            <div className='flex flex-col gap-1 mb-2'>
+              <Input
+                id='email'
+                placeholder='hi@rithul.dev'
+                type='email'
+                autoCapitalize='none'
+                autoComplete='email'
+                autoCorrect='off'
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+              />
+              {stepTwo && (
+                <div className='relative'>
+                  <Label className='sr-only' htmlFor='code'>
+                    Code
+                  </Label>
+                  <Input
+                    id='code'
+                    placeholder='xxxx-xxxx'
+                    type='text'
+                    autoCapitalize='characters'
+                    autoComplete='off'
+                    autoCorrect='off'
+                    maxLength={9}
+                    value={code}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const sanitizedValue = inputValue.replace(
+                        /[^A-Za-z0-9]/g,
+                        ''
+                      );
+
+                      if (sanitizedValue.length <= 4) {
+                        setCode(sanitizedValue);
+                      } else if (sanitizedValue.length <= 8) {
+                        setCode(
+                          sanitizedValue.slice(0, 4) +
+                            '-' +
+                            sanitizedValue.slice(4)
+                        );
+                      }
+                    }}
+                    className={`transition-all duration-300 transform border rounded-md focus:outline-none focus:border-primary`}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          <Button disabled={isLoading}>
-            {isLoading && <FaSpinner className='mr-2 h-4 w-4 animate-spin' />}
-            Sign In with Email
+          <Button disabled={isLoading && !stepTwo}>
+            {stepTwo ? (
+              <div className='flex gap-1 items-center justify-center text-center'>
+                <FaSignInAlt /> Enter
+              </div>
+            ) : (
+              <div className='flex gap-1 items-center justify-center text-center group'>
+                <FaPaperPlane /> Send Sign-in Code
+              </div>
+            )}
           </Button>
         </div>
       </form>

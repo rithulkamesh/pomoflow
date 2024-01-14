@@ -12,7 +12,7 @@ const Logo: React.FC<LogoProps> = ({ width = 32, height = 32, className }) => {
     <Image
       src='/pomotimer.svg'
       alt='Pomotimer'
-      className={`w-auto light:filter dark:filter-invert ${className}`}
+      className={`w-auto invert dark:invert-0 ${className}`}
       width={width}
       height={height}
     />

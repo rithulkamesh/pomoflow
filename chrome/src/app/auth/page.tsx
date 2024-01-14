@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { UserAuthForm } from './user-auth-form';
 import Logo from '@/components/logo';
+import ThemeSwitcher from '@/components/theme/theme-switcher';
 
 export const metadata: Metadata = {
   title: 'Pomotimer | Auth',
@@ -10,6 +11,9 @@ export const metadata: Metadata = {
 export default function AuthenticationPage() {
   return (
     <div className='w-screen h-screen flex items-center justify-center border-md flex-col'>
+      <div className='absolute top-4 right-4'>
+        <ThemeSwitcher />
+      </div>
       <div className='container relative flex-col items-center justify-center md:grid lg:max-w-none lg:px-0'>
         <div className='lg:p-8'>
           <div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]'>
