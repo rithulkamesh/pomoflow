@@ -18,6 +18,14 @@ func main() {
 		return nil
 	})
 
+	// app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+	// 	e.Router.GET("/ws", func(c echo.Context) error {
+
+	// 		return c.JSON(200, map[string]interface{}{"hello": "world"})
+	// 	})
+	// 	return nil
+	// })
+
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
