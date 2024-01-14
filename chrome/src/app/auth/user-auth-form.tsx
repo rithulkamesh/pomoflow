@@ -1,12 +1,12 @@
 'use client';
 
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { FaDiscord, FaSpinner } from 'react-icons/fa6';
+import { FaDiscord, FaGoogle, FaSpinner } from 'react-icons/fa6';
 import { createBrowserClient } from '@/lib/pocketbase';
 import { useRouter } from 'next/navigation';
 
@@ -16,32 +16,25 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const pb = createBrowserClient();
   const router = useRouter();
+  const [email, setEmail] = useState<string>('');
 
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
   }
 
-  async function discordLogin(event: React.SyntheticEvent) {
+  async function oAuth(event: React.SyntheticEvent, provider: string) {
     event.preventDefault();
     setIsLoading(true);
 
-    await pb
-      .collection('users')
-      .authWithOAuth2({ provider: 'discord' });
+    await pb.collection('users').authWithOAuth2({ provider });
+  }
 
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-  }
-  
-  if (pb.authStore.isValid) {
-    router.push('/');
-  }
+  useEffect(() => {
+    if (pb.authStore.isValid) {
+      router.push('/');
+    }
+  });
 
   return (
     <div className={cn('grid gap-6', className)} {...props}>
@@ -58,13 +51,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoCapitalize='none'
               autoComplete='email'
               autoCorrect='off'
+              onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
             />
           </div>
           <Button disabled={isLoading}>
-            {isLoading && (
-              <FaSpinner className='mr-2 h-4 w-4 animate-spin' />
-            )}
+            {isLoading && <FaSpinner className='mr-2 h-4 w-4 animate-spin' />}
             Sign In with Email
           </Button>
         </div>
@@ -79,19 +71,34 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </span>
         </div>
       </div>
-      <Button
-        variant='outline'
-        type='button'
-        disabled={isLoading}
-        onClick={discordLogin}
-      >
-        {isLoading ? (
-          <FaSpinner className='mr-2 h-4 w-4 animate-spin' />
-        ) : (
-          <FaDiscord className='mr-2 h-4 w-4' />
-        )}{' '}
-        Discord
-      </Button>
+      <div className='flex flex-col gap-2'>
+        <Button
+          variant='outline'
+          type='button'
+          disabled={isLoading}
+          onClick={(e) => oAuth(e, 'google')}
+        >
+          {isLoading ? (
+            <FaSpinner className='mr-2 h-4 w-4 animate-spin' />
+          ) : (
+            <FaGoogle className='mr-2 h-4 w-4' />
+          )}{' '}
+          Google
+        </Button>
+        <Button
+          variant='outline'
+          type='button'
+          disabled={isLoading}
+          onClick={(e) => oAuth(e, 'discord')}
+        >
+          {isLoading ? (
+            <FaSpinner className='mr-2 h-4 w-4 animate-spin' />
+          ) : (
+            <FaDiscord className='mr-2 h-4 w-4' />
+          )}{' '}
+          Discord
+        </Button>
+      </div>
     </div>
   );
 }

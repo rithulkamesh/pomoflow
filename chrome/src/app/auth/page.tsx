@@ -19,7 +19,7 @@ export default function AuthenticationPage() {
                 Authenticate
               </h1>
               <p className='text-sm text-muted-foreground'>
-                Sign in with a magic link or continue with socials.
+                Sign in with your credentials or use socials.
               </p>
             </div>
             <UserAuthForm />
