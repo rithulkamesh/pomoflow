@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { UserAuthForm } from '@/components/user-auth-form';
+import { UserAuthForm } from './user-auth-form';
+import Logo from '@/components/logo';
 
 export const metadata: Metadata = {
   title: 'Pomotimer | Auth',
@@ -15,13 +14,7 @@ export default function AuthenticationPage() {
         <div className='lg:p-8'>
           <div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]'>
             <div className='flex flex-col space-y-2 text-center'>
-              <Image
-                src='/pomotimer.svg'
-                alt='Pomotimer'
-                className='h-14 w-auto'
-                width={15}
-                height={15}
-              />
+              <Logo className='w-16 h-16 mx-auto mb-3' />
               <h1 className='text-2xl font-semibold tracking-tight'>
                 Authenticate
               </h1>
@@ -31,21 +24,7 @@ export default function AuthenticationPage() {
             </div>
             <UserAuthForm />
             <p className='px-8 text-center text-sm text-muted-foreground'>
-              By clicking continue, you agree to our{' '}
-              <Link
-                href='/terms'
-                className='underline underline-offset-4 hover:text-primary'
-              >
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link
-                href='/privacy'
-                className='underline underline-offset-4 hover:text-primary'
-              >
-                Privacy Policy
-              </Link>
-              .
+              If you don't have an account, it will be created automatically.
             </p>
           </div>
         </div>

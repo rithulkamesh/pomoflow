@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { useTheme } from 'next-themes';
 import { IoSunny } from 'react-icons/io5';
 import { LuMoon } from 'react-icons/lu';

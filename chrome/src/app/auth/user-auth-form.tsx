@@ -3,11 +3,10 @@
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
-import { Icons } from '@/components/icons';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { FaDiscord } from 'react-icons/fa6';
+import { FaDiscord, FaSpinner } from 'react-icons/fa6';
 import { createBrowserClient } from '@/lib/pocketbase';
 import { useRouter } from 'next/navigation';
 
@@ -54,7 +53,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             </Label>
             <Input
               id='email'
-              placeholder='name@example.com'
+              placeholder='hi@rithul.dev'
               type='email'
               autoCapitalize='none'
               autoComplete='email'
@@ -64,7 +63,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </div>
           <Button disabled={isLoading}>
             {isLoading && (
-              <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
+              <FaSpinner className='mr-2 h-4 w-4 animate-spin' />
             )}
             Sign In with Email
           </Button>
@@ -87,7 +86,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         onClick={discordLogin}
       >
         {isLoading ? (
-          <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />
+          <FaSpinner className='mr-2 h-4 w-4 animate-spin' />
         ) : (
           <FaDiscord className='mr-2 h-4 w-4' />
         )}{' '}
