@@ -1,7 +1,7 @@
-import { Metadata } from 'next';
-import { UserAuthForm } from './user-auth-form';
 import Logo from '@/components/logo';
 import ThemeSwitcher from '@/components/theme/theme-switcher';
+import { Metadata } from 'next';
+import { UserAuthForm } from './user-auth-form';
 
 export const metadata: Metadata = {
   title: 'Pomotimer | Auth',
