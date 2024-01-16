@@ -1,10 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { app } from '@/lib/firebase';
+import { useToast } from '@/components/ui/use-toast';
+import { auth } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
-import { getAuth, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
-import { GoogleAuthProvider } from 'firebase/auth/cordova';
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+} from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { FaGoogle, FaSpinner } from 'react-icons/fa6';
 
@@ -12,12 +17,15 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(app), (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log(user);
       if (user) {
         setIsLoading(false);
+        router.push('/dash');
       }
     });
     return () => unsubscribe();
@@ -42,9 +50,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           disabled={isLoading}
           onClick={(e) => {
             e.preventDefault();
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(getAuth(app), provider);
             setIsLoading(true);
+            signInWithPopup(auth, new GoogleAuthProvider()).catch((e) => {
+              toast({
+                title: 'Authentication Error',
+                description:
+                  "Couldn't authenticate with Google, Please try again.",
+              });
+              setIsLoading(false);
+            });
           }}
         >
           {isLoading ? (

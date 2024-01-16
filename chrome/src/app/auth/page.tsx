@@ -23,7 +23,7 @@ export default function AuthenticationPage() {
                 Authenticate
               </h1>
               <p className='text-sm text-muted-foreground'>
-                Sign in with your credentials or use socials.
+                Sign in to productivity!
               </p>
             </div>
             <UserAuthForm />
