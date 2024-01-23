@@ -7,6 +7,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { useToast } from '@/components/ui/use-toast';
+import { auth, db } from '@/lib/firebase';
+import { camelize } from '@/lib/utils';
+import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
   IoCog,
@@ -21,6 +25,13 @@ enum TimerType {
   LongBreak = 'Long Break',
 }
 
+interface UserConfig {
+  id: string;
+  pomodoroTime: number;
+  shortBreakTime: number;
+  longBreakTime: number;
+}
+
 const PomodoroCard = () => {
   const [pomodoroTime, setPomodoroTime] = useState<number>(25);
   const [shortBreakTime, setShortBreakTime] = useState<number>(5);
@@ -29,6 +40,7 @@ const PomodoroCard = () => {
   const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [timerType, setTimerType] = useState(TimerType.Pomodoro);
+  const { toast } = useToast();
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -43,8 +55,49 @@ const PomodoroCard = () => {
   }, [isRunning, timeRemaining]);
 
   useEffect(() => {
-    resetTimer();
-  }, [pomodoroTime, shortBreakTime, longBreakTime]);
+    if (!auth.currentUser?.uid) return;
+    const ref = doc(db, 'users', auth.currentUser.uid);
+
+    const unsubscribe = onSnapshot(
+      ref,
+      (ss) => {
+        const data = { ...ss.data(), id: ss.id } as UserConfig;
+
+        if (!ss.data()) {
+          return setDoc(
+            ref,
+            {
+              pomodoroTime: 25,
+              shortBreakTime: 5,
+              longBreakTime: 15,
+            },
+            { merge: true }
+          ).then(() => {
+            setPomodoroTime(25);
+            setShortBreakTime(5);
+            setLongBreakTime(15);
+            toast({
+              title: 'Success',
+              description: 'Default settings applied.',
+            });
+          });
+        }
+
+        setPomodoroTime(data.pomodoroTime);
+        setShortBreakTime(data.shortBreakTime);
+        setLongBreakTime(data.longBreakTime);
+      },
+      (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    );
+
+    return () => unsubscribe();
+  }, [auth.currentUser]);
 
   const timerTypes = [
     TimerType.Pomodoro,
@@ -53,7 +106,7 @@ const PomodoroCard = () => {
   ];
 
   const handleTimerTypeChange = (newTimerType: TimerType) => {
-    setTimerType((prevType) => {
+    setTimerType(() => {
       const newTime = getTimeByType(newTimerType);
 
       setTimeRemaining(newTime * 60);
@@ -91,6 +144,32 @@ const PomodoroCard = () => {
       default:
         return 0;
     }
+  };
+
+  useEffect(() => {
+    resetTimer();
+  }, [pomodoroTime, shortBreakTime, longBreakTime, resetTimer]);
+
+  const updateTimer = (newTime: number, timerType: TimerType) => {
+    const ref = doc(db, 'users', auth.currentUser?.uid as string);
+
+    switch (timerType) {
+      case TimerType.Pomodoro:
+        setPomodoroTime(newTime);
+        break;
+      case TimerType.ShortBreak:
+        setShortBreakTime(newTime);
+        break;
+      case TimerType.LongBreak:
+        setLongBreakTime(newTime);
+        break;
+      default:
+        break;
+    }
+
+    updateDoc(ref, {
+      [camelize(timerType.replace(/ /g, '')) + 'Time']: newTime,
+    });
   };
 
   return (
@@ -139,17 +218,17 @@ const PomodoroCard = () => {
                 <SettingInput
                   label='Pomodoro'
                   value={pomodoroTime}
-                  onChange={setPomodoroTime}
+                  onChange={updateTimer}
                 />
                 <SettingInput
                   label='Short Break'
                   value={shortBreakTime}
-                  onChange={setShortBreakTime}
+                  onChange={updateTimer}
                 />
                 <SettingInput
                   label='Long Break'
                   value={longBreakTime}
-                  onChange={setLongBreakTime}
+                  onChange={updateTimer}
                 />
               </div>
             </div>
@@ -163,7 +242,7 @@ const PomodoroCard = () => {
 interface SettingInputProps {
   label: string;
   value: number;
-  onChange: (value: number) => void;
+  onChange: (value: number, timerType: TimerType) => void;
 }
 
 const SettingInput: React.FC<SettingInputProps> = ({
@@ -177,8 +256,9 @@ const SettingInput: React.FC<SettingInputProps> = ({
       id={label.toLowerCase().replace(' ', '-')}
       className='col-span-2 h-8'
       value={value}
+      type='number'
       onChange={(e) => {
-        onChange(+e.target.value);
+        onChange(+e.target.value, label as TimerType);
       }}
     />
   </div>
