@@ -8,50 +8,48 @@ import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 
 const Header: React.FC = () => {
-    const avatar = createAvatar(notionists, {
-        seed: auth.currentUser?.displayName as string,
-    });
+  const avatar = createAvatar(notionists, {
+    seed: auth.currentUser?.displayName as string,
+  });
 
-    const router = useRouter();
+  const router = useRouter();
 
-    return (
-        <div className='flex justify-between items-center h-12 w-screen px-5 my-2'>
-            <DropdownMenu>
-                <DropdownMenuTrigger>
-                    <Avatar>
-                        <AvatarImage
-                            src={avatar.toDataUriSync()}
-                            className='dark:bg-white'
-                        />
-                        <AvatarFallback>
-                            {auth.currentUser?.displayName}
-                        </AvatarFallback>
-                    </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className='ml-2 mt-1 p-0'>
-                    <DropdownMenuLabel>
-                        <Button
-                            variant='link'
-                            onClick={() => {
-                                signOut(auth).then(() => router.push('/'));
-                            }}
-                        >
-                            Log out
-                        </Button>
-                    </DropdownMenuLabel>
-                </DropdownMenuContent>
-            </DropdownMenu>
+  return (
+    <div className='flex justify-between items-center h-12 w-screen px-5 my-2'>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Avatar>
+            <AvatarImage
+              src={avatar.toDataUriSync()}
+              className='dark:bg-white'
+            />
+            <AvatarFallback>{auth.currentUser?.displayName}</AvatarFallback>
+          </Avatar>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className='ml-2 mt-1 p-0'>
+          <DropdownMenuLabel>
+            <Button
+              variant='link'
+              onClick={() => {
+                signOut(auth).then(() => router.push('/'));
+              }}
+            >
+              Log out
+            </Button>
+          </DropdownMenuLabel>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-            <ThemeSwitcher />
-        </div>
-    );
+      <ThemeSwitcher />
+    </div>
+  );
 };
 
 export default Header;
