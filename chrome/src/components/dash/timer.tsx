@@ -94,7 +94,7 @@ const PomodoroCard = ({
                 : ''
             }
           >
-            {type}
+            {TimerType[type]}
           </Button>
         ))}
       </div>
