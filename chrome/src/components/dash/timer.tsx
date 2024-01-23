@@ -8,23 +8,29 @@ import {
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 
-interface TimerProps {
-  pomodoroTime: number;
-  shortBreakTime: number;
-  longBreakTime: number;
-}
-
 enum TimerType {
   Pomodoro = 'Pomodoro',
   ShortBreak = 'Short Break',
   LongBreak = 'Long Break',
 }
 
-const PomodoroCard = ({
-  pomodoroTime,
-  shortBreakTime,
-  longBreakTime,
-}: TimerProps) => {
+const PomodoroCard = ({}) => {
+  const [pomodoroTime, setPomodoroTime] = useState<number>(
+    localStorage.getItem('pomodoroTime')
+      ? parseInt(localStorage.getItem('pomodoroTime')!)
+      : 25
+  );
+  const [shortBreakTime, setShortBreakTime] = useState<number>(
+    localStorage.getItem('shortBreakTime')
+      ? parseInt(localStorage.getItem('shortBreakTime')!)
+      : 5
+  );
+  const [longBreakTime, setLongBreakTime] = useState<number>(
+    localStorage.getItem('longBreakTime')
+      ? parseInt(localStorage.getItem('longBreakTime')!)
+      : 15
+  );
+
   const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [timerType, setTimerType] = useState(TimerType.Pomodoro);
@@ -53,8 +59,8 @@ const PomodoroCard = ({
         newTimerType === TimerType.Pomodoro
           ? pomodoroTime
           : newTimerType === TimerType.ShortBreak
-            ? shortBreakTime
-            : longBreakTime;
+          ? shortBreakTime
+          : longBreakTime;
 
       setTimeRemaining(newTime * 60);
       setIsRunning(false);
