@@ -21,13 +21,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const { toast } = useToast();
 
   useEffect(() => {
+    if (auth.currentUser) return router.push('/dash');
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log(user);
-      if (user) {
-        setIsLoading(false);
-        router.push('/dash');
-      }
+      if (!user) return;
+
+      setIsLoading(false);
+      router.push('/dash');
     });
+
     return () => unsubscribe();
   }, []);
 

@@ -31,7 +31,7 @@ const Header: React.FC = () => {
             <AvatarFallback>{auth.currentUser?.displayName}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className='ml-2 mt-1t'>
+        <DropdownMenuContent className='ml-2 mt-1 p-0'>
           <DropdownMenuLabel>
             <Button
               variant='link'

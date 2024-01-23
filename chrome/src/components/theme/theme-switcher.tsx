@@ -1,12 +1,22 @@
 'use client';
 
-import { Button } from '../ui/button';
 import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 import { IoSunny } from 'react-icons/io5';
 import { LuMoon } from 'react-icons/lu';
+import { Button } from '../ui/button';
 
 const ThemeSwitcher: React.FC = () => {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Button
