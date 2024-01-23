@@ -1,12 +1,19 @@
-import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import React, { useEffect, useState } from 'react';
 import {
   IoCog,
   IoPauseOutline,
   IoPlayOutline,
   IoRefreshOutline,
 } from 'react-icons/io5';
-import { Button } from '../ui/button';
-import { Card } from '../ui/card';
 
 enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -14,22 +21,10 @@ enum TimerType {
   LongBreak = 'Long Break',
 }
 
-const PomodoroCard = ({}) => {
-  const [pomodoroTime, setPomodoroTime] = useState<number>(
-    localStorage.getItem('pomodoroTime')
-      ? parseInt(localStorage.getItem('pomodoroTime')!)
-      : 25
-  );
-  const [shortBreakTime, setShortBreakTime] = useState<number>(
-    localStorage.getItem('shortBreakTime')
-      ? parseInt(localStorage.getItem('shortBreakTime')!)
-      : 5
-  );
-  const [longBreakTime, setLongBreakTime] = useState<number>(
-    localStorage.getItem('longBreakTime')
-      ? parseInt(localStorage.getItem('longBreakTime')!)
-      : 15
-  );
+const PomodoroCard = () => {
+  const [pomodoroTime, setPomodoroTime] = useState<number>(25);
+  const [shortBreakTime, setShortBreakTime] = useState<number>(5);
+  const [longBreakTime, setLongBreakTime] = useState<number>(15);
 
   const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -47,6 +42,10 @@ const PomodoroCard = ({}) => {
     return () => clearInterval(timer);
   }, [isRunning, timeRemaining]);
 
+  useEffect(() => {
+    resetTimer();
+  }, [pomodoroTime, shortBreakTime, longBreakTime]);
+
   const timerTypes = [
     TimerType.Pomodoro,
     TimerType.ShortBreak,
@@ -54,13 +53,8 @@ const PomodoroCard = ({}) => {
   ];
 
   const handleTimerTypeChange = (newTimerType: TimerType) => {
-    setTimerType(() => {
-      const newTime =
-        newTimerType === TimerType.Pomodoro
-          ? pomodoroTime
-          : newTimerType === TimerType.ShortBreak
-          ? shortBreakTime
-          : longBreakTime;
+    setTimerType((prevType) => {
+      const newTime = getTimeByType(newTimerType);
 
       setTimeRemaining(newTime * 60);
       setIsRunning(false);
@@ -86,6 +80,19 @@ const PomodoroCard = ({}) => {
       .padStart(2, '0')}`;
   };
 
+  const getTimeByType = (timerType: TimerType) => {
+    switch (timerType) {
+      case TimerType.Pomodoro:
+        return pomodoroTime;
+      case TimerType.ShortBreak:
+        return shortBreakTime;
+      case TimerType.LongBreak:
+        return longBreakTime;
+      default:
+        return 0;
+    }
+  };
+
   return (
     <Card className='py-5 px-14'>
       <div className='flex gap-1 justify-center mt-3'>
@@ -94,11 +101,11 @@ const PomodoroCard = ({}) => {
             key={type}
             variant='outline'
             onClick={() => handleTimerTypeChange(type)}
-            className={
+            className={`${
               timerType === type
                 ? 'dark:bg-white dark:text-black bg-black text-white'
                 : ''
-            }
+            } font-regular`}
           >
             {type}
           </Button>
@@ -114,12 +121,67 @@ const PomodoroCard = ({}) => {
         <Button variant='ghost' size='icon' onClick={resetTimer}>
           <IoRefreshOutline />
         </Button>
-        <Button variant='ghost' size='icon' onClick={resetTimer}>
-          <IoCog />
-        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant='ghost' size='icon'>
+              <IoCog />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className='w-80'>
+            <div className='grid gap-4'>
+              <div className='space-y-2'>
+                <h4 className='font-medium leading-none'>Settings</h4>
+                <p className='text-sm text-muted-foreground'>
+                  Adjust clock settings for optimum productivity.
+                </p>
+              </div>
+              <div className='grid gap-2'>
+                <SettingInput
+                  label='Pomodoro'
+                  value={pomodoroTime}
+                  onChange={setPomodoroTime}
+                />
+                <SettingInput
+                  label='Short Break'
+                  value={shortBreakTime}
+                  onChange={setShortBreakTime}
+                />
+                <SettingInput
+                  label='Long Break'
+                  value={longBreakTime}
+                  onChange={setLongBreakTime}
+                />
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     </Card>
   );
 };
+
+interface SettingInputProps {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}
+
+const SettingInput: React.FC<SettingInputProps> = ({
+  label,
+  value,
+  onChange,
+}) => (
+  <div className='grid grid-cols-3 items-center gap-4'>
+    <Label htmlFor={label}>{label}</Label>
+    <Input
+      id={label.toLowerCase().replace(' ', '-')}
+      className='col-span-2 h-8'
+      value={value}
+      onChange={(e) => {
+        onChange(+e.target.value);
+      }}
+    />
+  </div>
+);
 
 export default PomodoroCard;
