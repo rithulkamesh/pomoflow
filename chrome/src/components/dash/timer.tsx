@@ -53,8 +53,8 @@ const PomodoroCard = ({
         newTimerType === TimerType.Pomodoro
           ? pomodoroTime
           : newTimerType === TimerType.ShortBreak
-          ? shortBreakTime
-          : longBreakTime;
+            ? shortBreakTime
+            : longBreakTime;
 
       setTimeRemaining(newTime * 60);
       setIsRunning(false);
