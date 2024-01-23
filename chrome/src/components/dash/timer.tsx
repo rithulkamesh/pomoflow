@@ -38,6 +38,8 @@ const PomodoroCard = () => {
   const [shortBreakTime, setShortBreakTime] = useState<number>(5);
   const [longBreakTime, setLongBreakTime] = useState<number>(15);
   const [loading, setLoading] = useState(true);
+  const [completedSessions, setCompletedSessions] = useState(0);
+  const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
 
   const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -47,6 +49,37 @@ const PomodoroCard = () => {
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
+    if (isRunning && timeRemaining <= 0) {
+      setIsRunning(false);
+
+      // Increment completed sessions only during Pomodoro
+      if (timerType === TimerType.Pomodoro) {
+        setCompletedSessions((prevSessions) => prevSessions + 1);
+      }
+
+      if (completedSessions > 0 && completedSessions % 4 === 0) {
+        setTimerType((prevType) => {
+          const newType =
+            prevType === TimerType.Pomodoro
+              ? TimerType.LongBreak
+              : TimerType.Pomodoro;
+
+          setTimeRemaining(getTimeByType(newType) * 60);
+          return newType;
+        });
+      } else {
+        setTimerType((prevType) => {
+          const newType =
+            prevType === TimerType.Pomodoro
+              ? TimerType.ShortBreak
+              : TimerType.Pomodoro;
+
+          setTimeRemaining(getTimeByType(newType) * 60);
+          return newType;
+        });
+      }
+    }
+
     if (isRunning && timeRemaining > 0) {
       timer = setInterval(() => {
         setTimeRemaining((prevTime) => prevTime - 1);
@@ -54,7 +87,19 @@ const PomodoroCard = () => {
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, timeRemaining]);
+  }, [isRunning, timeRemaining, completedSessions, timerType]);
+
+  useEffect(() => {
+    if (completedSessions > 0 && completedSessions % 4 === 0) {
+      setCurrentBreakType(TimerType.LongBreak);
+    } else {
+      setCurrentBreakType(
+        currentBreakType === TimerType.Pomodoro
+          ? TimerType.ShortBreak
+          : TimerType.Pomodoro
+      );
+    }
+  }, [completedSessions]);
 
   useEffect(() => {
     if (!auth.currentUser?.uid) return;
@@ -198,6 +243,18 @@ const PomodoroCard = () => {
           formatTime(timeRemaining)
         )}
       </p>
+      <div className='flex items-center justify-center mt-2'>
+        {[1, 2, 3, 4].map((dot) => (
+          <div
+            key={dot}
+            className={`h-2 w-2 rounded-full mx-1 ${
+              dot <= completedSessions % 4
+                ? 'dark:bg-white bg-black'
+                : 'dark:bg-zinc-800 bg-gray-200'
+            }`}
+          />
+        ))}
+      </div>
       <div className='flex gap-1 justify-center mt-3'>
         <Button
           variant='ghost'
@@ -210,7 +267,10 @@ const PomodoroCard = () => {
         <Button
           variant='ghost'
           size='icon'
-          onClick={resetTimer}
+          onClick={() => {
+            resetTimer();
+            setCompletedSessions(0);
+          }}
           disabled={loading}
         >
           <IoRefreshOutline />
@@ -264,19 +324,26 @@ const SettingInput: React.FC<SettingInputProps> = ({
   label,
   value,
   onChange,
-}) => (
-  <div className='grid grid-cols-3 items-center gap-4'>
-    <Label htmlFor={label}>{label}</Label>
-    <Input
-      id={label.toLowerCase().replace(' ', '-')}
-      className='col-span-2 h-8'
-      value={value}
-      type='number'
-      onChange={(e) => {
-        onChange(+e.target.value, label as TimerType);
-      }}
-    />
-  </div>
-);
+}) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = parseInt(e.target.value, 10);
+    if (!isNaN(inputValue) && inputValue >= 0 && Number.isInteger(inputValue)) {
+      onChange(inputValue, label as TimerType);
+    }
+  };
+
+  return (
+    <div className='grid grid-cols-3 items-center gap-4'>
+      <Label htmlFor={label}>{label}</Label>
+      <Input
+        id={label.toLowerCase().replace(' ', '-')}
+        className='col-span-2 h-8'
+        value={value}
+        type='number'
+        onChange={handleInputChange}
+      />
+    </div>
+  );
+};
 
 export default PomodoroCard;
