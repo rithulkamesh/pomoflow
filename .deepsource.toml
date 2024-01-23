@@ -1,2 +1,13 @@
 version = 1
 exclude_patters = ["./chrome/src/components/ui/**"]
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+dependency_file_paths = ["./chrome/package.json"]
+exclude_paths = ["./chrome/src/components/ui/**"]
+[analyzers.meta]
+plugins = ["react"]
+module_system = "es-modules"
+dialect = "flow"
+skip_doc_coverage = ["class-expression", "method-definition"]
