@@ -2,27 +2,15 @@
 
 ## Description
 
-This project is a collaborative Pomodoro timer web application designed for individuals working or studying together. It features a work-in-progress (WIP) hardware desk timer that enhances the synchronization experience. The collaborative aspect enables friends to coordinate their work or study sessions effectively.
-
-## Cogslity. Leveraging the pocketbase framework streamlines authentication, file storage, and database operations.
-
-### 1. chrome/ (Frontend)
-
-The Chrome cog acts as the frontend of the application and is crafted using Next.js along with shadcn/ui. This component provides the user interface through which individuals can interact with the collaborative Pomodoro timer.
-
-### 2. src/ (Hardware Control)
-
-Drives the hardware device using raw C++ code, without relying on an Arduino interface. This approach ensures direct control over the hardware components, specifically the ESP8266 (WiFi-enabled), speaker module, and OLED module.
-
-### 3. desktop/ (Planned)
-
-The desktop cog, although not yet created, is envisioned to be a desktop version of the application. This extension aims to enhance user experience by providing an alternative to browser tabs.
+This project is a collaborative Pomodoro timer web application designed for individuals working or studying together.
+It features a work-in-progress (WIP) hardware desk timer that enhances the synchronization experience.
+The collaborative aspect enables friends to coordinate their work or study sessions effectively.
 
 ## Requirements
 
 To fully utilize this collaborative Pomodoro timer and hardware desk timer, the following components are required:
 
-1. **ESP8266 (WiFi Enabled):** Enables wireless connectivity for the hardware device.
+1. **ESP32 (Bluetooth Enabled):** Enables wireless connectivity for the hardware device.
 2. **Speaker Module:** Incorporates sound notifications into the Pomodoro timer experience.
 3. **OLED Module:** Facilitates visual feedback on the hardware device, enhancing user interaction.
 

@@ -7,32 +7,32 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 interface Props {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }
 
 const DashboardLayout: React.FC<Props> = ({ children }) => {
-  const [signedIn, setSignedIn] = useState(false);
-  const router = useRouter();
+    const [signedIn, setSignedIn] = useState(false);
+    const router = useRouter();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) return router.push('/auth');
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (!user) return router.push('/auth');
 
-      setSignedIn(true);
+            setSignedIn(true);
+        });
+        return () => unsubscribe();
     });
-    return () => unsubscribe();
-  });
 
-  if (!signedIn) {
-    return null;
-  }
+    if (!signedIn) {
+        return null;
+    }
 
-  return (
-    <>
-      <Header />
-      {children}
-    </>
-  );
+    return (
+        <>
+            <Header />
+            {children}
+        </>
+    );
 };
 
 export default DashboardLayout;
