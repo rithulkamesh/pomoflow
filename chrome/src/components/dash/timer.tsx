@@ -15,9 +15,9 @@ interface TimerProps {
 }
 
 enum TimerType {
-  Pomodoro,
-  ShortBreak,
-  LongBreak,
+  Pomodoro = 'Pomodoro',
+  ShortBreak = 'Short Break',
+  LongBreak = 'Long Break',
 }
 
 const PomodoroCard = ({
@@ -94,7 +94,7 @@ const PomodoroCard = ({
                 : ''
             }
           >
-            {TimerType[type]}
+            {type}
           </Button>
         ))}
       </div>
