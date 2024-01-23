@@ -50,18 +50,21 @@ const PomodoroCard = ({
   };
 
   const resetTimer = () => {
-    switch (timerType) {
-      case TimerType.Pomodoro:
-        setTimeRemaining(pomodoroTime * 60);
-        break;
-      case TimerType.ShortBreak:
-        setTimeRemaining(shortBreakTime * 60);
-        break;
-      case TimerType.LongBreak:
-        setTimeRemaining(longBreakTime * 60);
-        break;
-    }
-    setIsRunning(false);
+    setTimerType((prevTimerType) => {
+      switch (prevTimerType) {
+        case TimerType.Pomodoro:
+          setTimeRemaining(pomodoroTime * 60);
+          break;
+        case TimerType.ShortBreak:
+          setTimeRemaining(shortBreakTime * 60);
+          break;
+        case TimerType.LongBreak:
+          setTimeRemaining(longBreakTime * 60);
+          break;
+      }
+      setIsRunning(false);
+      return prevTimerType;
+    });
   };
 
   const formatTime = (time: number) => {
