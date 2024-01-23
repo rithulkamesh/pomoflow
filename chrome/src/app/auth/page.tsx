@@ -28,7 +28,8 @@ export default function AuthenticationPage() {
             </div>
             <UserAuthForm />
             <p className='px-8 text-center text-sm text-muted-foreground'>
-              If you don't have an account, it will be created automatically.
+              If you don&apos;t have an account, it will be created
+              automatically.
             </p>
           </div>
         </div>

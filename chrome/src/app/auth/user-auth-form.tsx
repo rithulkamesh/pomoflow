@@ -10,12 +10,13 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { HTMLAttributes, useEffect } from 'react';
 import { FaGoogle, FaSpinner } from 'react-icons/fa6';
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+export function UserAuthForm({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -31,7 +32,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   return (
     <div className={cn('grid gap-6', className)} {...props}>
@@ -53,7 +54,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           onClick={(e) => {
             e.preventDefault();
             setIsLoading(true);
-            signInWithPopup(auth, new GoogleAuthProvider()).catch((e) => {
+            signInWithPopup(auth, new GoogleAuthProvider()).catch(() => {
               toast({
                 title: 'Authentication Error',
                 description:
