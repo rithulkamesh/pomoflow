@@ -18,6 +18,7 @@ import {
   IoPlayOutline,
   IoRefreshOutline,
 } from 'react-icons/io5';
+import { PiSpinnerLight } from 'react-icons/pi';
 
 enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -36,6 +37,7 @@ const PomodoroCard = () => {
   const [pomodoroTime, setPomodoroTime] = useState<number>(25);
   const [shortBreakTime, setShortBreakTime] = useState<number>(5);
   const [longBreakTime, setLongBreakTime] = useState<number>(15);
+  const [loading, setLoading] = useState(true);
 
   const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
   const [isRunning, setIsRunning] = useState(false);
@@ -76,16 +78,14 @@ const PomodoroCard = () => {
             setPomodoroTime(25);
             setShortBreakTime(5);
             setLongBreakTime(15);
-            toast({
-              title: 'Success',
-              description: 'Default settings applied.',
-            });
+            setLoading(false);
           });
         }
 
         setPomodoroTime(data.pomodoroTime);
         setShortBreakTime(data.shortBreakTime);
         setLongBreakTime(data.longBreakTime);
+        setLoading(false);
       },
       (error) => {
         toast({
@@ -97,7 +97,7 @@ const PomodoroCard = () => {
     );
 
     return () => unsubscribe();
-  }, [auth.currentUser]);
+  });
 
   const timerTypes = [
     TimerType.Pomodoro,
@@ -148,7 +148,7 @@ const PomodoroCard = () => {
 
   useEffect(() => {
     resetTimer();
-  }, [pomodoroTime, shortBreakTime, longBreakTime, resetTimer]);
+  }, [pomodoroTime, shortBreakTime, longBreakTime]);
 
   const updateTimer = (newTime: number, timerType: TimerType) => {
     const ref = doc(db, 'users', auth.currentUser?.uid as string);
@@ -179,6 +179,7 @@ const PomodoroCard = () => {
           <Button
             key={type}
             variant='outline'
+            disabled={loading}
             onClick={() => handleTimerTypeChange(type)}
             className={`${
               timerType === type
@@ -190,19 +191,33 @@ const PomodoroCard = () => {
           </Button>
         ))}
       </div>
-      <p className='text-center text-6xl font-extralight mt-2'>
-        {formatTime(timeRemaining)}
+      <p className='text-center text-6xl font-extralight mt-2 flex items-center justify-center'>
+        {loading ? (
+          <PiSpinnerLight className='mr-2 h-[3.75rem] animate-spin' />
+        ) : (
+          formatTime(timeRemaining)
+        )}
       </p>
       <div className='flex gap-1 justify-center mt-3'>
-        <Button variant='ghost' size='icon' onClick={toggleTimer}>
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={toggleTimer}
+          disabled={loading}
+        >
           {isRunning ? <IoPauseOutline /> : <IoPlayOutline />}
         </Button>
-        <Button variant='ghost' size='icon' onClick={resetTimer}>
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={resetTimer}
+          disabled={loading}
+        >
           <IoRefreshOutline />
         </Button>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant='ghost' size='icon'>
+            <Button variant='ghost' size='icon' disabled={loading}>
               <IoCog />
             </Button>
           </PopoverTrigger>

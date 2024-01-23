@@ -13,13 +13,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import { useToast } from '../ui/use-toast';
 
 const Header: React.FC = () => {
   const avatar = createAvatar(notionists, {
-    seed: auth.currentUser?.displayName as string,
+    seed: auth.currentUser!.displayName as string,
   });
 
   const router = useRouter();
+  const { toast } = useToast();
 
   return (
     <div className='flex justify-between items-center h-12 w-screen px-5 my-2'>
@@ -38,7 +40,15 @@ const Header: React.FC = () => {
             <Button
               variant='link'
               onClick={() => {
-                signOut(auth).then(() => router.push('/'));
+                signOut(auth)
+                  .catch((e) => {
+                    toast({
+                      title: 'Error',
+                      description: e.message,
+                      variant: 'destructive',
+                    });
+                  })
+                  .then(() => router.push('/'));
               }}
             >
               Log out
