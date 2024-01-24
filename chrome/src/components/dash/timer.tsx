@@ -23,20 +23,6 @@ import {
 import { PiSpinnerLight } from 'react-icons/pi';
 import { Slider } from '../ui/slider';
 
-enum TimerType {
-  Pomodoro = 'Pomodoro',
-  ShortBreak = 'Short Break',
-  LongBreak = 'Long Break',
-}
-
-interface UserConfig {
-  id: string;
-  pomodoroTime: number;
-  shortBreakTime: number;
-  longBreakTime: number;
-  volume: number;
-}
-
 const PomodoroCard = () => {
   const { toast } = useToast();
 
