@@ -36,18 +36,19 @@ interface UserConfig {
 }
 
 const PomodoroCard = () => {
-  const [pomodoroTime, setPomodoroTime] = useState<number>(25);
-  const [shortBreakTime, setShortBreakTime] = useState<number>(5);
-  const [longBreakTime, setLongBreakTime] = useState<number>(15);
-  const [volume, setVolume] = useState<number>(33);
-  const [loading, setLoading] = useState(true);
-  const [completedSessions, setCompletedSessions] = useState(0);
-  const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
-
-  const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
-  const [isRunning, setIsRunning] = useState(false);
-  const [timerType, setTimerType] = useState(TimerType.Pomodoro);
   const { toast } = useToast();
+
+  const [loading, setLoading] = useState(true);
+  const [playable, isPlayable] = useState(false);
+  const [volume, setVolume] = useState<number>(33);
+  const [isRunning, setIsRunning] = useState(false);
+  const [pomodoroTime, setPomodoroTime] = useState<number>(25);
+  const [completedSessions, setCompletedSessions] = useState(0);
+  const [longBreakTime, setLongBreakTime] = useState<number>(15);
+  const [timerType, setTimerType] = useState(TimerType.Pomodoro);
+  const [shortBreakTime, setShortBreakTime] = useState<number>(5);
+  const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
+  const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -229,13 +230,14 @@ const PomodoroCard = () => {
     setVolume(value[0]);
     const ref = doc(db, 'users', auth.currentUser?.uid as string);
     updateDoc(ref, { volume: value[0] });
+    isPlayable(true);
   };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (volume !== 0) {
       timer = setTimeout(() => {
-        playAudio('/sfx/timercomplete.mp3', volume / 100);
+        if (playable) playAudio('/sfx/timercomplete.mp3', volume / 100);
       }, 200);
     }
 
@@ -286,6 +288,7 @@ const PomodoroCard = () => {
           size='icon'
           onClick={toggleTimer}
           disabled={loading}
+          onClickCapture={() => isPlayable(true)}
         >
           {isRunning ? <IoPauseOutline /> : <IoPlayOutline />}
         </Button>
