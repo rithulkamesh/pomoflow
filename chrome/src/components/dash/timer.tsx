@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { useAtom } from 'jotai';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,9 +8,11 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useToast } from '@/components/ui/use-toast';
+import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
 import { camelize, playAudio } from '@/lib/utils';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import {
   IoCog,
@@ -21,7 +22,6 @@ import {
 } from 'react-icons/io5';
 import { PiSpinnerLight } from 'react-icons/pi';
 import { Slider } from '../ui/slider';
-import { volumeAtom } from '@/lib/atoms';
 
 enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -230,8 +230,6 @@ const PomodoroCard = () => {
 
   const handleVolumeChange = (value: number[]) => {
     setVolume(value[0]);
-    const ref = doc(db, 'users', auth.currentUser?.uid as string);
-    updateDoc(ref, { volume: value[0] });
     isPlayable(true);
   };
 
