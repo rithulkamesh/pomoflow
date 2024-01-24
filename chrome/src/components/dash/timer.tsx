@@ -314,7 +314,7 @@ const PomodoroCard = () => {
               <div className='space-y-2'>
                 <h4 className='font-medium leading-none'>Settings</h4>
                 <p className='text-sm text-muted-foreground'>
-                  Adjust clock settings for optimum productivity.
+                  Adjust clock settings for optimum productivity (in minutes)
                 </p>
               </div>
               <div className='grid gap-2'>
