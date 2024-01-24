@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/popover';
 import { useToast } from '@/components/ui/use-toast';
 import { auth, db } from '@/lib/firebase';
-import { camelize } from '@/lib/utils';
+import { camelize, playAudio } from '@/lib/utils';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
@@ -19,6 +19,7 @@ import {
   IoRefreshOutline,
 } from 'react-icons/io5';
 import { PiSpinnerLight } from 'react-icons/pi';
+import { Slider } from '../ui/slider';
 
 enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -31,12 +32,14 @@ interface UserConfig {
   pomodoroTime: number;
   shortBreakTime: number;
   longBreakTime: number;
+  volume: number;
 }
 
 const PomodoroCard = () => {
   const [pomodoroTime, setPomodoroTime] = useState<number>(25);
   const [shortBreakTime, setShortBreakTime] = useState<number>(5);
   const [longBreakTime, setLongBreakTime] = useState<number>(15);
+  const [volume, setVolume] = useState<number>(33);
   const [loading, setLoading] = useState(true);
   const [completedSessions, setCompletedSessions] = useState(0);
   const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
@@ -51,7 +54,7 @@ const PomodoroCard = () => {
 
     if (isRunning && timeRemaining <= 0) {
       setIsRunning(false);
-
+      playAudio('/sfx/timercomplete.mp3', volume / 100);
       // Increment completed sessions only during Pomodoro
       if (timerType === TimerType.Pomodoro) {
         setCompletedSessions((prevSessions) => prevSessions + 1);
@@ -117,12 +120,14 @@ const PomodoroCard = () => {
               pomodoroTime: 25,
               shortBreakTime: 5,
               longBreakTime: 15,
+              volume: 66,
             },
             { merge: true }
           ).then(() => {
             setPomodoroTime(25);
             setShortBreakTime(5);
             setLongBreakTime(15);
+            setVolume(66);
             setLoading(false);
           });
         }
@@ -130,6 +135,7 @@ const PomodoroCard = () => {
         setPomodoroTime(data.pomodoroTime);
         setShortBreakTime(data.shortBreakTime);
         setLongBreakTime(data.longBreakTime);
+        setVolume(data.volume);
         setLoading(false);
       },
       (error) => {
@@ -165,6 +171,8 @@ const PomodoroCard = () => {
     if (timeRemaining > 0) {
       setIsRunning((prevState) => !prevState);
     }
+
+    playAudio('/sfx/click.mp3', volume / 100);
   };
 
   const resetTimer = () => handleTimerTypeChange(timerType);
@@ -216,6 +224,23 @@ const PomodoroCard = () => {
       [camelize(timerType.replace(/ /g, '')) + 'Time']: newTime,
     });
   };
+
+  const handleVolumeChange = (value: number[]) => {
+    setVolume(value[0]);
+    const ref = doc(db, 'users', auth.currentUser?.uid as string);
+    updateDoc(ref, { volume: value[0] });
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (volume !== 0) {
+      timer = setTimeout(() => {
+        playAudio('/sfx/timercomplete.mp3', volume / 100);
+      }, 200);
+    }
+
+    return () => clearTimeout(timer);
+  }, [volume]);
 
   return (
     <Card className='py-5 px-14'>
@@ -305,6 +330,18 @@ const PomodoroCard = () => {
                   value={longBreakTime}
                   onChange={updateTimer}
                 />
+                <div className='grid grid-cols-3 gap-5'>
+                  <Label htmlFor='volume'>Volume</Label>
+                  <Slider
+                    defaultValue={[volume]}
+                    max={100}
+                    step={1}
+                    onValueChange={handleVolumeChange}
+                  />
+                  <span className='text-sm text-muted-foreground'>
+                    {volume}%
+                  </span>
+                </div>
               </div>
             </div>
           </PopoverContent>

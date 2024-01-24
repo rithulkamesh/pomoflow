@@ -10,3 +10,9 @@ export function camelize(str: string) {
     return index === 0 ? word.toLowerCase() : word.toUpperCase();
   }).replace(/\s+/g, '');
 }
+
+export function playAudio(url: string, volume: number) {
+  const audio = new Audio(url);
+  audio.volume = volume;
+  audio.play();
+}
