@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { useAtom } from 'jotai';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,7 @@ import {
 } from 'react-icons/io5';
 import { PiSpinnerLight } from 'react-icons/pi';
 import { Slider } from '../ui/slider';
+import { volumeAtom } from '@/lib/atoms';
 
 enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -40,7 +42,7 @@ const PomodoroCard = () => {
 
   const [loading, setLoading] = useState(true);
   const [playable, isPlayable] = useState(false);
-  const [volume, setVolume] = useState<number>(33);
+  const [volume, setVolume] = useAtom(volumeAtom);
   const [isRunning, setIsRunning] = useState(false);
   const [pomodoroTime, setPomodoroTime] = useState<number>(25);
   const [completedSessions, setCompletedSessions] = useState(0);
