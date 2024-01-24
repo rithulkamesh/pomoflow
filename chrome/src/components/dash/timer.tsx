@@ -23,6 +23,19 @@ import {
 import { PiSpinnerLight } from 'react-icons/pi';
 import { Slider } from '../ui/slider';
 
+enum TimerType {
+  Pomodoro = 'Pomodoro',
+  ShortBreak = 'Short Break',
+  LongBreak = 'Long Break',
+}
+
+interface UserConfig {
+  id: string;
+  pomodoroTime: number;
+  shortBreakTime: number;
+  longBreakTime: number;
+}
+
 const PomodoroCard = () => {
   const { toast } = useToast();
 
@@ -109,14 +122,12 @@ const PomodoroCard = () => {
               pomodoroTime: 25,
               shortBreakTime: 5,
               longBreakTime: 15,
-              volume: 66,
             },
             { merge: true }
           ).then(() => {
             setPomodoroTime(25);
             setShortBreakTime(5);
             setLongBreakTime(15);
-            setVolume(66);
             setLoading(false);
           });
         }
@@ -124,7 +135,6 @@ const PomodoroCard = () => {
         setPomodoroTime(data.pomodoroTime);
         setShortBreakTime(data.shortBreakTime);
         setLongBreakTime(data.longBreakTime);
-        setVolume(data.volume);
         setLoading(false);
       },
       (error) => {
