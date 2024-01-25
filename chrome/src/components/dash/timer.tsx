@@ -7,11 +7,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { useToast } from '@/components/ui/use-toast';
+import { Slider } from '@/components/ui/slider';
 import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
 import { camelize, playAudio } from '@/lib/utils';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import {
@@ -21,68 +21,62 @@ import {
   IoRefreshOutline,
 } from 'react-icons/io5';
 import { PiSpinnerLight } from 'react-icons/pi';
-import { Slider } from '../ui/slider';
 
-enum TimerType {
+export enum TimerType {
   Pomodoro = 'Pomodoro',
   ShortBreak = 'Short Break',
   LongBreak = 'Long Break',
 }
 
-interface UserConfig {
-  id: string;
+interface PomodoroCardProps {
+  actionsDisabled?: boolean;
   pomodoroTime: number;
   shortBreakTime: number;
   longBreakTime: number;
+  loading: boolean;
+  setPomodoroTime: (value: number) => void;
+  setShortBreakTime: (value: number) => void;
+  setLongBreakTime: (value: number) => void;
 }
 
-const PomodoroCard = () => {
-  const { toast } = useToast();
-
-  const [loading, setLoading] = useState(true);
-  const [playable, isPlayable] = useState(false);
+const PomodoroCard: React.FC<PomodoroCardProps> = ({
+  actionsDisabled,
+  pomodoroTime,
+  shortBreakTime,
+  longBreakTime,
+  loading,
+  setPomodoroTime,
+  setShortBreakTime,
+  setLongBreakTime,
+}) => {
+  const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
   const [isRunning, setIsRunning] = useState(false);
-  const [pomodoroTime, setPomodoroTime] = useState<number>(25);
   const [completedSessions, setCompletedSessions] = useState(0);
-  const [longBreakTime, setLongBreakTime] = useState<number>(15);
   const [timerType, setTimerType] = useState(TimerType.Pomodoro);
-  const [shortBreakTime, setShortBreakTime] = useState<number>(5);
   const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
   const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
-    if (isRunning && timeRemaining <= 0) {
+    const handleTimerComplete = () => {
       setIsRunning(false);
       playAudio('/sfx/timercomplete.mp3', volume / 100);
-      // Increment completed sessions only during Pomodoro
+
       if (timerType === TimerType.Pomodoro) {
         setCompletedSessions((prevSessions) => prevSessions + 1);
       }
 
-      if (completedSessions > 0 && completedSessions % 4 === 0) {
-        setTimerType((prevType) => {
-          const newType =
-            prevType === TimerType.Pomodoro
-              ? TimerType.LongBreak
-              : TimerType.Pomodoro;
+      const isLongBreak = completedSessions > 0 && completedSessions % 4 === 0;
+      const newType = isLongBreak ? TimerType.LongBreak : TimerType.ShortBreak;
 
-          setTimeRemaining(getTimeByType(newType) * 60);
-          return newType;
-        });
-      } else {
-        setTimerType((prevType) => {
-          const newType =
-            prevType === TimerType.Pomodoro
-              ? TimerType.ShortBreak
-              : TimerType.Pomodoro;
+      setTimerType(newType);
+      setTimeRemaining(getTimeByType(newType) * 60);
+    };
 
-          setTimeRemaining(getTimeByType(newType) * 60);
-          return newType;
-        });
-      }
+    if (isRunning && timeRemaining <= 0) {
+      handleTimerComplete();
     }
 
     if (isRunning && timeRemaining > 0) {
@@ -95,59 +89,12 @@ const PomodoroCard = () => {
   }, [isRunning, timeRemaining, completedSessions, timerType]);
 
   useEffect(() => {
-    if (completedSessions > 0 && completedSessions % 4 === 0) {
-      setCurrentBreakType(TimerType.LongBreak);
-    } else {
-      setCurrentBreakType(
-        currentBreakType === TimerType.Pomodoro
-          ? TimerType.ShortBreak
-          : TimerType.Pomodoro
-      );
-    }
+    const isLongBreak = completedSessions > 0 && completedSessions % 4 === 0;
+    const newBreakType = isLongBreak
+      ? TimerType.LongBreak
+      : TimerType.ShortBreak;
+    setCurrentBreakType(newBreakType);
   }, [completedSessions]);
-
-  useEffect(() => {
-    if (!auth.currentUser?.uid) return;
-    const ref = doc(db, 'users', auth.currentUser.uid);
-
-    const unsubscribe = onSnapshot(
-      ref,
-      (ss) => {
-        const data = { ...ss.data(), id: ss.id } as UserConfig;
-
-        if (!ss.data()) {
-          return setDoc(
-            ref,
-            {
-              pomodoroTime: 25,
-              shortBreakTime: 5,
-              longBreakTime: 15,
-            },
-            { merge: true }
-          ).then(() => {
-            setPomodoroTime(25);
-            setShortBreakTime(5);
-            setLongBreakTime(15);
-            setLoading(false);
-          });
-        }
-
-        setPomodoroTime(data.pomodoroTime);
-        setShortBreakTime(data.shortBreakTime);
-        setLongBreakTime(data.longBreakTime);
-        setLoading(false);
-      },
-      (error) => {
-        toast({
-          title: 'Error',
-          description: error.message,
-          variant: 'destructive',
-        });
-      }
-    );
-
-    return () => unsubscribe();
-  });
 
   const timerTypes = [
     TimerType.Pomodoro,
@@ -156,21 +103,16 @@ const PomodoroCard = () => {
   ];
 
   const handleTimerTypeChange = (newTimerType: TimerType) => {
-    setTimerType(() => {
-      const newTime = getTimeByType(newTimerType);
-
-      setTimeRemaining(newTime * 60);
-      setIsRunning(false);
-
-      return newTimerType;
-    });
+    const newTime = getTimeByType(newTimerType);
+    setTimeRemaining(newTime * 60);
+    setIsRunning(false);
+    setTimerType(newTimerType);
   };
 
   const toggleTimer = () => {
     if (timeRemaining > 0) {
       setIsRunning((prevState) => !prevState);
     }
-
     playAudio('/sfx/click.mp3', volume / 100);
   };
 
@@ -179,7 +121,6 @@ const PomodoroCard = () => {
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
-
     return `${minutes.toString().padStart(2, '0')}:${seconds
       .toString()
       .padStart(2, '0')}`;
@@ -226,7 +167,7 @@ const PomodoroCard = () => {
 
   const handleVolumeChange = (value: number[]) => {
     setVolume(value[0]);
-    isPlayable(true);
+    setPlayable(true);
   };
 
   useEffect(() => {
@@ -247,7 +188,7 @@ const PomodoroCard = () => {
           <Button
             key={type}
             variant='outline'
-            disabled={loading}
+            disabled={loading || actionsDisabled}
             onClick={() => handleTimerTypeChange(type)}
             className={`${
               timerType === type
@@ -283,8 +224,8 @@ const PomodoroCard = () => {
           variant='ghost'
           size='icon'
           onClick={toggleTimer}
-          disabled={loading}
-          onClickCapture={() => isPlayable(true)}
+          disabled={loading || actionsDisabled}
+          onClickCapture={() => setPlayable(true)}
         >
           {isRunning ? <IoPauseOutline /> : <IoPlayOutline />}
         </Button>
@@ -295,13 +236,17 @@ const PomodoroCard = () => {
             resetTimer();
             setCompletedSessions(0);
           }}
-          disabled={loading}
+          disabled={loading || actionsDisabled}
         >
           <IoRefreshOutline />
         </Button>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant='ghost' size='icon' disabled={loading}>
+            <Button
+              variant='ghost'
+              size='icon'
+              disabled={loading || actionsDisabled}
+            >
               <IoCog />
             </Button>
           </PopoverTrigger>
