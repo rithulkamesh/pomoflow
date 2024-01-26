@@ -8,7 +8,7 @@ import { auth, db } from '@/lib/firebase';
 import { camelize, playAudio } from '@/lib/utils';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface UserConfig {
   id: string;
@@ -34,6 +34,10 @@ const Dash: React.FC = () => {
     userConfig.pomodoroTime * 60
   );
   const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
+  const audios = useRef<{
+    click: HTMLAudioElement;
+    complete: HTMLAudioElement;
+  } | null>(null);
 
   const getTimeByType = (timerType: TimerType) => {
     const { pomodoroTime, shortBreakTime, longBreakTime } = userConfig;
@@ -55,10 +59,10 @@ const Dash: React.FC = () => {
   };
 
   const toggleTimer = () => {
+    audios.current?.click.play();
     if (timeRemaining > 0) {
       setIsRunning((prevState) => !prevState);
     }
-    playAudio('/sfx/click.mp3', volume / 100);
   };
 
   const resetTimer = () => {
@@ -72,6 +76,22 @@ const Dash: React.FC = () => {
     setUserConfig({ ...userConfig, [type + 'Time']: newTime });
     updateDoc(ref, { [camelize(type.replace(/ /g, '')) + 'Time']: newTime });
   };
+
+  // Preload audio
+  useEffect(() => {
+    if (!audios.current) {
+      const complete = new Audio('/sfx/timercomplete.mp3');
+      const click = new Audio('/sfx/click.mp3');
+      [complete, click].forEach((audio) => {
+        audio.load();
+        audio.preload = 'auto';
+      });
+      audios.current = { complete, click };
+    }
+
+    audios.current.complete.volume = volume / 100;
+    audios.current.click.volume = volume / 100;
+  }, [volume]);
 
   useEffect(() => {
     if (!auth.currentUser?.uid) return;
