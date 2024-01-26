@@ -22,7 +22,7 @@ import {
 } from 'react-icons/io5';
 import { PiSpinnerLight } from 'react-icons/pi';
 
-export enum TimerType {
+enum TimerType {
   Pomodoro = 'Pomodoro',
   ShortBreak = 'Short Break',
   LongBreak = 'Long Break',
@@ -64,9 +64,8 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
       setIsRunning(false);
       playAudio('/sfx/timercomplete.mp3', volume / 100);
 
-      if (timerType === TimerType.Pomodoro) {
+      if (timerType === TimerType.Pomodoro)
         setCompletedSessions((prevSessions) => prevSessions + 1);
-      }
 
       const isLongBreak = completedSessions > 0 && completedSessions % 4 === 0;
       const newType = isLongBreak ? TimerType.LongBreak : TimerType.ShortBreak;
@@ -259,21 +258,51 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
                 </p>
               </div>
               <div className='grid gap-2'>
-                <SettingInput
-                  label='Pomodoro'
-                  value={pomodoroTime}
-                  onChange={updateTimer}
-                />
-                <SettingInput
-                  label='Short Break'
-                  value={shortBreakTime}
-                  onChange={updateTimer}
-                />
-                <SettingInput
-                  label='Long Break'
-                  value={longBreakTime}
-                  onChange={updateTimer}
-                />
+                <div className='grid grid-cols-3 items-center gap-4'>
+                  <Label htmlFor='pomodoro'>Pomodoro</Label>
+                  <Input
+                    id='pomodoro'
+                    className='col-span-2 h-8'
+                    value={pomodoroTime}
+                    type='number'
+                    onChange={(e) =>
+                      updateTimer(
+                        parseInt(e.target.value, 10),
+                        TimerType.Pomodoro
+                      )
+                    }
+                  />
+                </div>
+                <div className='grid grid-cols-3 items-center gap-4'>
+                  <Label htmlFor='short-break'>Short Break</Label>
+                  <Input
+                    id='short-break'
+                    className='col-span-2 h-8'
+                    value={shortBreakTime}
+                    type='number'
+                    onChange={(e) =>
+                      updateTimer(
+                        parseInt(e.target.value, 10),
+                        TimerType.ShortBreak
+                      )
+                    }
+                  />
+                </div>
+                <div className='grid grid-cols-3 items-center gap-4'>
+                  <Label htmlFor='long-break'>Long Break</Label>
+                  <Input
+                    id='long-break'
+                    className='col-span-2 h-8'
+                    value={longBreakTime}
+                    type='number'
+                    onChange={(e) =>
+                      updateTimer(
+                        parseInt(e.target.value, 10),
+                        TimerType.LongBreak
+                      )
+                    }
+                  />
+                </div>
                 <div className='grid grid-cols-3 gap-5'>
                   <Label htmlFor='volume'>Volume</Label>
                   <Slider
@@ -292,38 +321,6 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
         </Popover>
       </div>
     </Card>
-  );
-};
-
-interface SettingInputProps {
-  label: string;
-  value: number;
-  onChange: (value: number, timerType: TimerType) => void;
-}
-
-const SettingInput: React.FC<SettingInputProps> = ({
-  label,
-  value,
-  onChange,
-}) => {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = parseInt(e.target.value, 10);
-    if (!isNaN(inputValue) && inputValue >= 0 && Number.isInteger(inputValue)) {
-      onChange(inputValue, label as TimerType);
-    }
-  };
-
-  return (
-    <div className='grid grid-cols-3 items-center gap-4'>
-      <Label htmlFor={label}>{label}</Label>
-      <Input
-        id={label.toLowerCase().replace(' ', '-')}
-        className='col-span-2 h-8'
-        value={value}
-        type='number'
-        onChange={handleInputChange}
-      />
-    </div>
   );
 };
 
