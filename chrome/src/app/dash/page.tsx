@@ -1,6 +1,7 @@
 'use client';
 
 import Timer, { TimerType } from '@/components/dash/timer';
+import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
@@ -152,7 +153,7 @@ const Dash: React.FC = () => {
   }, [userConfig]);
 
   return (
-    <main className='flex flex-col items-center justify-center p-24'>
+    <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
       <Timer
         loading={loading}
         timerType={timerType}

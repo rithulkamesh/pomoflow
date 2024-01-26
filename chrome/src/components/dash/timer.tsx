@@ -12,9 +12,11 @@ import { volumeAtom } from '@/lib/atoms';
 import { playAudio } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
+import { FaPeopleArrows } from 'react-icons/fa6';
 import {
   IoCog,
   IoPauseOutline,
+  IoPersonAddOutline,
   IoPlayOutline,
   IoRefreshOutline,
 } from 'react-icons/io5';
@@ -85,8 +87,8 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   }, [volume]);
 
   return (
-    <Card className='py-5 px-14'>
-      <div className='flex gap-1 justify-center mt-3'>
+    <Card className='py-5 px-14 flex flex-col gap-4 border-0'>
+      <div className='flex gap-1 justify-center'>
         {Object.values(TimerType).map((type) => (
           <Button
             key={type}
@@ -103,14 +105,14 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           </Button>
         ))}
       </div>
-      <p className='text-center text-6xl font-extralight mt-3 flex items-center justify-center'>
+      <p className='text-center text-6xl font-extralight flex items-center justify-center'>
         {loading ? (
           <PiSpinnerLight className='mr-2 h-[3.75rem] animate-spin' />
         ) : (
           formatTime(timeRemaining)
         )}
       </p>
-      <div className='flex items-center justify-center mt-2'>
+      <div className='flex items-center justify-center'>
         {[1, 2, 3, 4].map((dot) => (
           <div
             key={dot}
@@ -122,7 +124,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           />
         ))}
       </div>
-      <div className='flex gap-1 justify-center mt-3'>
+      <div className='flex gap-1 justify-center'>
         <Button
           variant='ghost'
           size='icon'
@@ -220,6 +222,13 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             </div>
           </PopoverContent>
         </Popover>
+        <Button
+          variant='ghost'
+          size='icon'
+          disabled={loading || actionsDisabled}
+        >
+          <IoPersonAddOutline />
+        </Button>
       </div>
     </Card>
   );
