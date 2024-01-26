@@ -55,7 +55,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   const [completedSessions, setCompletedSessions] = useState(0);
   const [timerType, setTimerType] = useState(TimerType.Pomodoro);
   const [timeRemaining, setTimeRemaining] = useState(pomodoroTime * 60);
-  const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
+  const [_, setCurrentBreakType] = useState(TimerType.Pomodoro);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -95,12 +95,6 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
     setCurrentBreakType(newBreakType);
   }, [completedSessions]);
 
-  const timerTypes = [
-    TimerType.Pomodoro,
-    TimerType.ShortBreak,
-    TimerType.LongBreak,
-  ];
-
   const handleTimerTypeChange = (newTimerType: TimerType) => {
     const newTime = getTimeByType(newTimerType);
     setTimeRemaining(newTime * 60);
@@ -114,8 +108,6 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
     }
     playAudio('/sfx/click.mp3', volume / 100);
   };
-
-  const resetTimer = () => handleTimerTypeChange(timerType);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -139,7 +131,8 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   };
 
   useEffect(() => {
-    resetTimer();
+    setTimeRemaining(pomodoroTime * 60);
+    setCompletedSessions(0);
   }, [pomodoroTime, shortBreakTime, longBreakTime]);
 
   const updateTimer = (newTime: number, timerType: TimerType) => {
@@ -183,7 +176,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   return (
     <Card className='py-5 px-14'>
       <div className='flex gap-1 justify-center mt-3'>
-        {timerTypes.map((type) => (
+        {Object.values(TimerType).map((type) => (
           <Button
             key={type}
             variant='outline'
@@ -232,7 +225,8 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           variant='ghost'
           size='icon'
           onClick={() => {
-            resetTimer();
+            setIsRunning(false);
+            setTimeRemaining(getTimeByType(timerType) * 60);
             setCompletedSessions(0);
           }}
           disabled={loading || actionsDisabled}
