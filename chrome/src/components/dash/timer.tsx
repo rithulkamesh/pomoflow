@@ -88,23 +88,25 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
 
   return (
     <Card className='py-5 px-14 flex flex-col gap-4 border-0'>
-      <div className='flex gap-1 justify-center'>
+      <div className='flex gap-2 justify-center'>
         {Object.values(TimerType).map((type) => (
           <Button
             key={type}
-            variant='outline'
+            variant='ghost'
             disabled={loading || actionsDisabled}
             onClick={() => handleTimerTypeChange(type)}
-            className={`${
-              timerType === type
+            className={`${timerType === type
                 ? 'dark:bg-white dark:text-black bg-black text-white'
                 : ''
-            } font-regular`}
+              } font-regular`}
           >
             {type}
           </Button>
         ))}
       </div>
+
+      <div className='py-0.5' />
+
       <p className='text-center text-6xl font-extralight flex items-center justify-center'>
         {loading ? (
           <PiSpinnerLight className='mr-2 h-[3.75rem] animate-spin' />
@@ -116,11 +118,10 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
         {[1, 2, 3, 4].map((dot) => (
           <div
             key={dot}
-            className={`h-2 w-2 rounded-full mx-1 ${
-              dot <= completedSessions % 4
+            className={`h-2 w-2 rounded-full mx-1 ${dot <= completedSessions % 4
                 ? 'dark:bg-white bg-black'
                 : 'dark:bg-zinc-800 bg-gray-200'
-            }`}
+              }`}
           />
         ))}
       </div>
