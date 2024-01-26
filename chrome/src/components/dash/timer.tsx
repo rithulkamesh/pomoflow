@@ -84,6 +84,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
 
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [volume]);
 
   return (
