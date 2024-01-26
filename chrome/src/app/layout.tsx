@@ -7,7 +7,7 @@ import './globals.css';
 const poppins = Poppins({ subsets: ['latin'], weight: ['100', '400', '700'] });
 
 export const metadata: Metadata = {
-  title: 'Pomotimer',
+  title: 'Pomoflow',
   description: 'Work in collaboration!',
 };
 

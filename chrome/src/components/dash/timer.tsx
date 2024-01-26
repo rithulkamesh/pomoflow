@@ -103,7 +103,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           </Button>
         ))}
       </div>
-      <p className='text-center text-6xl font-extralight mt-2 flex items-center justify-center'>
+      <p className='text-center text-6xl font-extralight mt-3 flex items-center justify-center'>
         {loading ? (
           <PiSpinnerLight className='mr-2 h-[3.75rem] animate-spin' />
         ) : (
