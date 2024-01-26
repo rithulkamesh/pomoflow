@@ -16,7 +16,7 @@ export interface UserConfig {
   longBreakTime: number;
 }
 
-export default function Dash() {
+const Dash: React.FC = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState<boolean>(true);
   const [userConfig, setUserConfig] = useState<UserConfig>({
@@ -32,7 +32,7 @@ export default function Dash() {
   const [timeRemaining, setTimeRemaining] = useState(
     userConfig.pomodoroTime * 60
   );
-  const [_, setCurrentBreakType] = useState(TimerType.Pomodoro);
+  const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
 
   const getTimeByType = (timerType: TimerType) => {
     const { pomodoroTime, shortBreakTime, longBreakTime } = userConfig;
@@ -44,6 +44,32 @@ export default function Dash() {
     };
 
     return timeMapping[timerType];
+  };
+
+  const handleTimerTypeChange = (newTimerType: TimerType) => {
+    const newTime = getTimeByType(newTimerType);
+    setTimeRemaining(newTime * 60);
+    setIsRunning(false);
+    setTimerType(newTimerType);
+  };
+
+  const toggleTimer = () => {
+    if (timeRemaining > 0) {
+      setIsRunning((prevState) => !prevState);
+    }
+    playAudio('/sfx/click.mp3', volume / 100);
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    setTimeRemaining(getTimeByType(timerType) * 60);
+    setCompletedSessions(0);
+  };
+
+  const updateTimer = (newTime: number, type: TimerType) => {
+    const ref = doc(db, 'users', auth.currentUser?.uid as string);
+    setUserConfig({ ...userConfig, [type + 'Time']: newTime });
+    updateDoc(ref, { [camelize(type.replace(/ /g, '')) + 'Time']: newTime });
   };
 
   useEffect(() => {
@@ -62,15 +88,13 @@ export default function Dash() {
             longBreakTime: 15,
           };
 
-          return setDoc(ref, defaultConfig, { merge: true })
-            .then(() => {
-              setUserConfig({ id: ss.id, ...defaultConfig });
-            })
+          setDoc(ref, defaultConfig, { merge: true })
+            .then(() => setUserConfig({ id: ss.id, ...defaultConfig }))
             .finally(() => setLoading(false));
+        } else {
+          setUserConfig(data);
+          setLoading(false);
         }
-
-        setUserConfig(data);
-        setLoading(false);
       },
       (error) => {
         toast({
@@ -122,38 +146,10 @@ export default function Dash() {
     setCurrentBreakType(newBreakType);
   }, [completedSessions]);
 
-  const handleTimerTypeChange = (newTimerType: TimerType) => {
-    const newTime = getTimeByType(newTimerType);
-    setTimeRemaining(newTime * 60);
-    setIsRunning(false);
-    setTimerType(newTimerType);
-  };
-
-  const toggleTimer = () => {
-    if (timeRemaining > 0) {
-      setIsRunning((prevState) => !prevState);
-    }
-    playAudio('/sfx/click.mp3', volume / 100);
-  };
-
   useEffect(() => {
     setTimeRemaining(getTimeByType(timerType) * 60);
     setCompletedSessions(0);
   }, [userConfig]);
-
-  const updateTimer = (newTime: number, timerType: TimerType) => {
-    const ref = doc(db, 'users', auth.currentUser?.uid as string);
-    setUserConfig({ ...userConfig, [timerType + 'Time']: newTime });
-    updateDoc(ref, {
-      [camelize(timerType.replace(/ /g, '')) + 'Time']: newTime,
-    });
-  };
-
-  const resetTimer = () => {
-    setIsRunning(false);
-    setTimeRemaining(getTimeByType(timerType) * 60);
-    setCompletedSessions(0);
-  };
 
   return (
     <main className='flex flex-col items-center justify-center p-24'>
@@ -173,4 +169,6 @@ export default function Dash() {
       />
     </main>
   );
-}
+};
+
+export default Dash;
