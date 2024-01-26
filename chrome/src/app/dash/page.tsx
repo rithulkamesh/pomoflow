@@ -1,13 +1,13 @@
 'use client';
 
 import Timer, { TimerType } from '@/components/dash/timer';
-import { Card } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
 import { camelize, playAudio } from '@/lib/utils';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 export interface UserConfig {
@@ -17,8 +17,19 @@ export interface UserConfig {
   longBreakTime: number;
 }
 
+export interface SessionDoc {
+  id: string;
+  isRunning: boolean;
+  timerType: TimerType;
+  timeRemaining: number;
+  hostId: string;
+  completedSessions: number;
+  guests: Array<string>;
+}
+
 const Dash: React.FC = () => {
   const { toast } = useToast();
+  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [userConfig, setUserConfig] = useState<UserConfig>({
     id: '',
@@ -172,6 +183,31 @@ const Dash: React.FC = () => {
     setCompletedSessions(0);
   }, [userConfig]);
 
+  const handleMultiplayer = () => {
+    const ref = doc(db, 'sessions', crypto.randomUUID());
+    const sessionData: SessionDoc = {
+      id: ref.id,
+      isRunning,
+      timerType,
+      timeRemaining,
+      hostId: auth.currentUser?.uid as string,
+      completedSessions,
+      guests: [],
+    };
+
+    setDoc(ref, sessionData)
+      .then(() => {
+        router.push(`/session/${ref.id}`);
+      })
+      .catch((error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      });
+  };
+
   return (
     <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
       <Timer
@@ -187,6 +223,7 @@ const Dash: React.FC = () => {
         updateTimer={updateTimer}
         toggleTimer={toggleTimer}
         handleTimerTypeChange={handleTimerTypeChange}
+        handleMultiplayer={handleMultiplayer}
       />
     </main>
   );

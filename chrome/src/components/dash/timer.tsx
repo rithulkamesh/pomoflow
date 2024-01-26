@@ -12,7 +12,6 @@ import { volumeAtom } from '@/lib/atoms';
 import { playAudio } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
-import { FaPeopleArrows } from 'react-icons/fa6';
 import {
   IoCog,
   IoPauseOutline,
@@ -42,6 +41,7 @@ interface PomodoroCardProps {
   toggleTimer: () => void;
   handleTimerTypeChange: (timerType: TimerType) => void;
   updateTimer: (value: number, timerType: TimerType) => void;
+  handleMultiplayer?: () => void;
 }
 
 const PomodoroCard: React.FC<PomodoroCardProps> = ({
@@ -58,6 +58,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   toggleTimer,
   handleTimerTypeChange,
   resetTimer,
+  handleMultiplayer,
 }) => {
   const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
@@ -96,10 +97,11 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             variant='ghost'
             disabled={loading || actionsDisabled}
             onClick={() => handleTimerTypeChange(type)}
-            className={`${timerType === type
+            className={`${
+              timerType === type
                 ? 'dark:bg-white dark:text-black bg-black text-white'
                 : ''
-              } font-regular`}
+            } font-regular`}
           >
             {type}
           </Button>
@@ -119,10 +121,11 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
         {[1, 2, 3, 4].map((dot) => (
           <div
             key={dot}
-            className={`h-2 w-2 rounded-full mx-1 ${dot <= completedSessions % 4
+            className={`h-2 w-2 rounded-full mx-1 ${
+              dot <= completedSessions % 4
                 ? 'dark:bg-white bg-black'
                 : 'dark:bg-zinc-800 bg-gray-200'
-              }`}
+            }`}
           />
         ))}
       </div>
@@ -224,13 +227,16 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             </div>
           </PopoverContent>
         </Popover>
-        <Button
-          variant='ghost'
-          size='icon'
-          disabled={loading || actionsDisabled}
-        >
-          <IoPersonAddOutline />
-        </Button>
+        {handleMultiplayer && (
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={handleMultiplayer}
+            disabled={loading || actionsDisabled}
+          >
+            <IoPersonAddOutline />
+          </Button>
+        )}
       </div>
     </Card>
   );
