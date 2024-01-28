@@ -161,7 +161,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
       <Timer
         loading={loading}
         timerType={timerType}
-        isRunning={!host & session.isRunning}
+        isRunning={!!(!host && session?.isRunning)}
         timeRemaining={timeRemaining}
         completedSessions={completedSessions}
         pomodoroTime={session?.pomodoroTime as number}
