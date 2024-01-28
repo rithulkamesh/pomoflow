@@ -21,9 +21,11 @@ export interface SessionDoc {
   id: string;
   isRunning: boolean;
   timerType: TimerType;
-  timeRemaining: number;
   hostId: string;
   completedSessions: number;
+  pomodoroTime: number;
+  shortBreakTime: number;
+  longBreakTime: number;
   guests: Array<string>;
 }
 
@@ -189,7 +191,9 @@ const Dash: React.FC = () => {
       id: ref.id,
       isRunning,
       timerType,
-      timeRemaining,
+      pomodoroTime: userConfig.pomodoroTime,
+      shortBreakTime: userConfig.shortBreakTime,
+      longBreakTime: userConfig.longBreakTime,
       hostId: auth.currentUser?.uid as string,
       completedSessions,
       guests: [],
