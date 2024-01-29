@@ -11,6 +11,14 @@ import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
+// Not sure if this is the best approach but I don't want to think right now
+const DEFAULTS = {
+  id: '',
+  pomodoroTime: 25,
+  shortBreakTime: 5,
+  longBreakTime: 15,
+};
+
 type Props = {
   params: {
     id: string;
@@ -30,8 +38,9 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   const [timerType, setTimerType] = useState(TimerType.Pomodoro);
   const [host, isHost] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(
-    session?.pomodoroTime * 60
+    (session?.pomodoroTime ?? DEFAULTS.pomodoroTime) * 60
   );
+
   useEffect(() => {
     const ref = doc(db, 'sessions', params.id);
     const unsubscribe = onSnapshot(ref, (ss) => {
