@@ -155,6 +155,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     }
 
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRunning, timeRemaining, completedSessions, timerType, volume]);
 
   useEffect(() => {
