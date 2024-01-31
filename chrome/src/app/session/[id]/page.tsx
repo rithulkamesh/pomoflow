@@ -1,17 +1,12 @@
 'use client';
 
-import { SessionDoc } from '@/app/dash/page';
 import Timer, { TimerType } from '@/components/dash/timer';
 import { useToast } from '@/components/ui/use-toast';
-import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
-import { camelize, playAudio } from '@/lib/utils';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-// Not sure if this is the best approach but I don't want to think right now
 const DEFAULTS = {
   id: '',
   pomodoroTime: 25,
@@ -25,18 +20,34 @@ type Props = {
   };
 };
 
+interface Pauses {
+  start: number;
+  end: number | null;
+}
+
+export interface SessionDoc {
+  id: string;
+  isRunning: boolean;
+  timerType: TimerType;
+  hostId: string;
+  completedSessions: number;
+  pomodoroTime: number;
+  shortBreakTime: number;
+  longBreakTime: number;
+  guests: Array<string>;
+  pausedTimes: Pauses[];
+  startTime: number;
+}
+
 const SessionPage: React.FC<Props> = ({ params }) => {
   const [session, setSession] = useState<SessionDoc | null>(null);
-
   const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [volume] = useAtom(volumeAtom);
-  const [isRunning, setIsRunning] = useState(false);
-  const [completedSessions, setCompletedSessions] = useState(0);
-  const [timerType, setTimerType] = useState(TimerType.Pomodoro);
-  const [host, isHost] = useState(false);
+  const [completedSessions] = useState(0);
+  const [timerType] = useState(TimerType.Pomodoro);
+  const [isHost, setIsHost] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(
     (session?.pomodoroTime ?? DEFAULTS.pomodoroTime) * 60
   );
@@ -44,127 +55,88 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   useEffect(() => {
     const ref = doc(db, 'sessions', params.id);
     const unsubscribe = onSnapshot(ref, (ss) => {
-      if (!ss.data()) {
-        router.push('/404');
-      }
-      if (ss.data()?.hostId === auth.currentUser?.uid) {
-        isHost(true);
-      }
-      setSession({ ...ss.data(), id: ss.id } as SessionDoc);
+      const data = ss.data();
+      if (!data) return router.push('/404');
+      data.hostId === auth.currentUser?.uid && setIsHost(true);
+      setSession({ id: ss.id, ...data } as SessionDoc);
+      setTimeRemaining((data.pomodoroTime ?? DEFAULTS.pomodoroTime) * 60);
       setLoading(false);
     });
 
     return () => unsubscribe();
   });
-  const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
-  const audios = useRef<{
-    click: HTMLAudioElement;
-    complete: HTMLAudioElement;
-  } | null>(null);
+  const ref = doc(db, 'sessions', params.id);
 
-  const getTimeByType = (timerType: TimerType) => {
-    const { pomodoroTime, shortBreakTime, longBreakTime } = session;
+  useEffect(() => {
+    if (!session || !session.isRunning || !session.startTime) return;
 
-    const timeMapping: Record<TimerType, number> = {
-      [TimerType.Pomodoro]: pomodoroTime,
-      [TimerType.ShortBreak]: shortBreakTime,
-      [TimerType.LongBreak]: longBreakTime,
+    const calculateTimeRemaining = () => {
+      const now = Math.floor(Date.now() / 1000); // Current time in seconds
+      const { startTime, pausedTimes, pomodoroTime } = session;
+
+      const remainingTime = pomodoroTime * 60 - (now - startTime);
+      const pausedTime = pausedTimes.reduce((acc, curr) => {
+        const { start, end } = curr;
+        if (end === null) {
+          return acc + (now - start);
+        }
+        return acc + (end - start);
+      }, 0);
+
+      setTimeRemaining(remainingTime - pausedTime);
     };
 
-    return timeMapping[timerType];
-  };
+    calculateTimeRemaining();
+    const interval = setInterval(calculateTimeRemaining, 1000);
 
-  const handleTimerTypeChange = (newTimerType: TimerType) => {
-    const newTime = getTimeByType(newTimerType);
-    setTimeRemaining(newTime * 60);
-    setIsRunning(false);
-    setTimerType(newTimerType);
-  };
+    return () => clearInterval(interval);
+  }, [session]);
 
   const toggleTimer = () => {
-    audios.current?.click.play();
-    if (timeRemaining > 0) {
-      setIsRunning((prevState) => !prevState);
-      const ref = doc(db, 'sessions', params.id);
-      updateDoc(ref, { isRunning: !isRunning });
-    }
+    if (!session) return;
+
+    const lastPause = session.pausedTimes.slice(-1)[0];
+
+    const newPausedTimes =
+      lastPause && lastPause.end === null
+        ? [
+            ...session.pausedTimes.slice(0, -1),
+            { ...lastPause, end: Date.now() },
+          ]
+        : [...session.pausedTimes, { start: Date.now(), end: null }];
+
+    const newSession: SessionDoc = {
+      ...session,
+      isRunning: !session.isRunning,
+      pausedTimes: newPausedTimes,
+    };
+
+    setSession(newSession);
+    updateDoc(ref, newSession as any);
   };
 
   const resetTimer = () => {
-    setIsRunning(false);
-    setTimeRemaining(getTimeByType(timerType) * 60);
-    setCompletedSessions(0);
-  };
-
-  const updateTimer = (newTime: number, type: TimerType) => {
-    const ref = doc(db, 'sessions', params.id);
-    setSession({ ...session, [type + 'Time']: newTime });
-    updateDoc(ref, { [camelize(type.replace(/ /g, '')) + 'Time']: newTime });
-  };
-
-  // Preload audio
-  useEffect(() => {
-    if (!audios.current) {
-      const complete = new Audio('/sfx/timercomplete.mp3');
-      const click = new Audio('/sfx/click.mp3');
-      [complete, click].forEach((audio) => {
-        audio.load();
-        audio.preload = 'auto';
-      });
-      audios.current = { complete, click };
-    }
-
-    audios.current.complete.volume = volume / 100;
-    audios.current.click.volume = volume / 100;
-  }, [volume]);
-
-  useEffect(() => {
     if (!session) return;
-    if (!auth.currentUser?.uid) return;
-    if (session.guests.includes(auth.currentUser.uid)) return;
-    if (session.hostId === auth.currentUser.uid) return;
+    const newSession: SessionDoc = {
+      ...session,
+      startTime: Date.now(),
+      pausedTimes: [],
+      isRunning: false,
+    };
+    setSession(newSession);
+    updateDoc(ref, newSession as any);
+  };
 
-    const ref = doc(db, 'sessions', session.id);
-    updateDoc(ref, { guests: [...session.guests] });
-  }, [session]);
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
+  const updateTimer = (value: number, timerType: TimerType) => {
+    // Update the session pomodoro timer details
 
-    if (isRunning) {
-      if (timeRemaining <= 0) {
-        setIsRunning(false);
-        playAudio('/sfx/timercomplete.mp3', volume / 100);
+    console.error('Todo');
+  };
 
-        if (timerType === TimerType.Pomodoro) {
-          setCompletedSessions((prevSessions) => prevSessions + 1);
-        }
-
-        const isLongBreak =
-          completedSessions > 0 && completedSessions % 4 === 0;
-        const newType = isLongBreak
-          ? TimerType.LongBreak
-          : TimerType.ShortBreak;
-
-        setTimerType(newType);
-        setTimeRemaining(getTimeByType(newType) * 60);
-      } else {
-        timer = setInterval(() => {
-          setTimeRemaining((prevTime) => prevTime - 1);
-        }, 1000);
-      }
-    }
-
-    return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRunning, timeRemaining, completedSessions, timerType, volume]);
-
-  useEffect(() => {
-    const isLongBreak = completedSessions > 0 && completedSessions % 4 === 0;
-    const newBreakType = isLongBreak
-      ? TimerType.LongBreak
-      : TimerType.ShortBreak;
-    setCurrentBreakType(newBreakType);
-  }, [completedSessions]);
+  const handleTimerTypeChange = (timerType: TimerType) => {
+    // Update the timer to a new timer type, and then update the session
+    console.error('Todo');
+  };
 
   return (
     <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
@@ -181,9 +153,9 @@ const SessionPage: React.FC<Props> = ({ params }) => {
         updateTimer={updateTimer}
         toggleTimer={toggleTimer}
         handleTimerTypeChange={handleTimerTypeChange}
-        actionsDisabled={session?.hostId !== auth.currentUser?.uid}
+        actionsDisabled={!setIsHost}
       />
-      {host && 'Host'}
+      {isHost && 'Host'}
     </main>
   );
 };

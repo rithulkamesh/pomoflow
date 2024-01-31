@@ -10,24 +10,13 @@ import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { SessionDoc } from '../session/[id]/page';
 
 export interface UserConfig {
   id: string;
   pomodoroTime: number;
   shortBreakTime: number;
   longBreakTime: number;
-}
-
-export interface SessionDoc {
-  id: string;
-  isRunning: boolean;
-  timerType: TimerType;
-  hostId: string;
-  completedSessions: number;
-  pomodoroTime: number;
-  shortBreakTime: number;
-  longBreakTime: number;
-  guests: Array<string>;
 }
 
 const Dash: React.FC = () => {
@@ -187,6 +176,7 @@ const Dash: React.FC = () => {
   }, [userConfig]);
 
   const handleMultiplayer = () => {
+    setLoading(true);
     const ref = doc(db, 'sessions', crypto.randomUUID());
     const sessionData: SessionDoc = {
       id: ref.id,
@@ -198,6 +188,8 @@ const Dash: React.FC = () => {
       hostId: auth.currentUser?.uid as string,
       completedSessions,
       guests: [],
+      pausedTimes: [],
+      startTime: Date.now(),
     };
 
     setDoc(ref, sessionData)

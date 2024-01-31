@@ -1,4 +1,0 @@
-- [ ] Backend can start a timer and deliver to client
-- [ ] Extend pocketbase to support websocket-based timer-sync 
-- [ ] Sync clients on front-end using a session-link sharing system
-- [ ] Sync desktop timer and web application using Bluetooth / WiFi
