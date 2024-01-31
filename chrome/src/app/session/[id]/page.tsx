@@ -1,11 +1,10 @@
 'use client';
 
 import Timer, { TimerType } from '@/components/dash/timer';
-import { useToast } from '@/components/ui/use-toast';
 import { auth, db } from '@/lib/firebase';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const DEFAULTS = {
   id: '',
@@ -42,9 +41,9 @@ export interface SessionDoc {
 
 const SessionPage: React.FC<Props> = ({ params }) => {
   const [session, setSession] = useState<SessionDoc | null>(null);
-  const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
+  const sessionRef = useRef<SessionDoc | null>(null);
 
   const [completedSessions] = useState(0);
   const [isHost, setIsHost] = useState(false);
@@ -59,7 +58,6 @@ const SessionPage: React.FC<Props> = ({ params }) => {
       if (!data) return router.push('/404');
       data.hostId === auth.currentUser?.uid && setIsHost(true);
       setSession({ id: ss.id, ...data } as SessionDoc);
-      setTimeRemaining((data.pomodoroTime ?? DEFAULTS.pomodoroTime) * 60);
       setLoading(false);
     });
 
@@ -80,13 +78,20 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   };
 
   useEffect(() => {
-    if (!session || !session.isRunning || !session.startTime) return;
+    sessionRef.current = session;
+  }, [session]);
 
+  useEffect(() => {
     const calculateTimeRemaining = () => {
-      if (!session || !session.isRunning || !session.startTime) return;
+      if (
+        !sessionRef.current ||
+        !sessionRef.current.isRunning ||
+        !sessionRef.current.startTime
+      )
+        return;
 
       const now = Date.now(); // Current time in miliseconds
-      const { startTime, pausedTimes, timerType } = session;
+      const { startTime, pausedTimes, timerType } = sessionRef.current;
 
       const sessionDuration = getTimeByType(timerType) * 60 * 1000;
       const elapsedTime = now - startTime;
@@ -102,6 +107,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
       }
 
       const remainingTime = sessionDuration - elapsedTime - pausedTime;
+
       setTimeRemaining(Math.floor(remainingTime / 1000));
     };
 
@@ -111,7 +117,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     return () => clearInterval(interval);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, []);
 
   const toggleTimer = () => {
     if (!session) return;
