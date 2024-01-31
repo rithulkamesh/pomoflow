@@ -85,11 +85,11 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     const calculateTimeRemaining = () => {
       if (!session || !session.isRunning || !session.startTime) return;
 
-      const now = Math.floor(Date.now() / 1000); // Current time in seconds
+      const now = Date.now(); // Current time in miliseconds
       const { startTime, pausedTimes, timerType } = session;
 
-      const sessionDuration = getTimeByType(timerType) / 60;
-      const elapsedSeconds = now - startTime;
+      const sessionDuration = getTimeByType(timerType) * 60 * 1000;
+      const elapsedTime = now - startTime;
 
       let pausedTime = 0;
       for (const pause of pausedTimes) {
@@ -101,11 +101,9 @@ const SessionPage: React.FC<Props> = ({ params }) => {
         }
       }
 
-      const remainingTime = Math.max(
-        sessionDuration - elapsedSeconds - pausedTime,
-        0
-      );
-      setTimeRemaining(remainingTime);
+      const remainingTime = sessionDuration - elapsedTime - pausedTime;
+      console.log(new Date(remainingTime).toString());
+      setTimeRemaining(Math.floor(remainingTime / 1000));
     };
 
     calculateTimeRemaining();
@@ -134,9 +132,9 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     const newPausedTimes =
       lastPause && lastPause.end === null
         ? [
-            ...session.pausedTimes.slice(0, -1),
-            { ...lastPause, end: Date.now() },
-          ]
+          ...session.pausedTimes.slice(0, -1),
+          { ...lastPause, end: Date.now() },
+        ]
         : [...session.pausedTimes, { start: Date.now(), end: null }];
 
     const newSession: SessionDoc = {
