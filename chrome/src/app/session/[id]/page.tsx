@@ -137,9 +137,9 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     const newPausedTimes =
       lastPause && lastPause.end === null
         ? [
-          ...session.pausedTimes.slice(0, -1),
-          { ...lastPause, end: Date.now() },
-        ]
+            ...session.pausedTimes.slice(0, -1),
+            { ...lastPause, end: Date.now() },
+          ]
         : [...session.pausedTimes, { start: Date.now(), end: null }];
 
     const newSession: SessionDoc = {
@@ -204,7 +204,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
         updateTimer={updateTimer}
         toggleTimer={toggleTimer}
         handleTimerTypeChange={handleTimerTypeChange}
-        actionsDisabled={!setIsHost}
+        actionsDisabled={!isHost}
       />
       {isHost && 'Host'}
     </main>
