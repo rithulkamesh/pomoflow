@@ -30,6 +30,7 @@ export interface SessionDoc {
   isRunning: boolean;
   timerType: TimerType;
   hostId: string;
+  sessionStarted: boolean;
   completedSessions: number;
   pomodoroTime: number;
   shortBreakTime: number;
@@ -82,22 +83,29 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     if (!session || !session.isRunning || !session.startTime) return;
 
     const calculateTimeRemaining = () => {
+      if (!session || !session.isRunning || !session.startTime) return;
+
       const now = Math.floor(Date.now() / 1000); // Current time in seconds
       const { startTime, pausedTimes, timerType } = session;
 
-      const remainingTime = getTimeByType(timerType) * 60 - (now - startTime);
-      const pausedTime =
-        pausedTimes.length === 0
-          ? 0
-          : pausedTimes.reduce((acc, curr) => {
-              const { start, end } = curr;
-              if (end === null) {
-                return acc + (now - start);
-              }
-              return acc + (end - start);
-            }, 0);
+      const sessionDuration = getTimeByType(timerType) / 60;
+      const elapsedSeconds = now - startTime;
 
-      setTimeRemaining(remainingTime - pausedTime);
+      let pausedTime = 0;
+      for (const pause of pausedTimes) {
+        const { start, end } = pause;
+        if (end === null) {
+          pausedTime += now - start;
+        } else {
+          pausedTime += (now - (end - start)) / 1000;
+        }
+      }
+
+      const remainingTime = Math.max(
+        sessionDuration - elapsedSeconds - pausedTime,
+        0
+      );
+      setTimeRemaining(remainingTime);
     };
 
     calculateTimeRemaining();
@@ -110,8 +118,19 @@ const SessionPage: React.FC<Props> = ({ params }) => {
 
   const toggleTimer = () => {
     if (!session) return;
-    const lastPause = session.pausedTimes.slice(-1)[0];
+    if (!session.sessionStarted) {
+      const newSession = {
+        ...session,
+        sessionStarted: true,
+        isRunning: true,
+        startTime: Date.now(),
+      };
+      setSession(newSession);
+      updateDoc(ref, newSession as any);
+      return;
+    }
 
+    const lastPause = session.pausedTimes.slice(-1)[0];
     const newPausedTimes =
       lastPause && lastPause.end === null
         ? [
@@ -138,6 +157,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
       startTime: Date.now(),
       pausedTimes: [],
       isRunning: false,
+      sessionStarted: false,
     };
 
     setTimeRemaining(getTimeByType(newSession.timerType) * 60);
