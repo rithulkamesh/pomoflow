@@ -102,7 +102,6 @@ const SessionPage: React.FC<Props> = ({ params }) => {
       }
 
       const remainingTime = sessionDuration - elapsedTime - pausedTime;
-      console.log(new Date(remainingTime).toString());
       setTimeRemaining(Math.floor(remainingTime / 1000));
     };
 
@@ -171,7 +170,6 @@ const SessionPage: React.FC<Props> = ({ params }) => {
 
   const handleTimerTypeChange = (timerType: TimerType) => {
     if (!session) return;
-    console.log(timerType);
 
     const newSession = {
       ...session,
