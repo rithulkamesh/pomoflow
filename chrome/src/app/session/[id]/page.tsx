@@ -49,8 +49,8 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   const [isHost, setIsHost] = useState(false);
 
   const getTimeByType = (timerType: TimerType) => {
-    if (!sessionRef.current) return;
-    const { pomodoroTime, shortBreakTime, longBreakTime } = sessionRef.current;
+    const { pomodoroTime, shortBreakTime, longBreakTime } =
+      sessionRef.current || DEFAULTS;
 
     const timeMapping: Record<TimerType, number> = {
       [TimerType.Pomodoro]: pomodoroTime,
@@ -62,7 +62,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   };
 
   const [timeRemaining, setTimeRemaining] = useState<number>(
-    getTimeByType(session?.timerType) * 60 || 0
+    getTimeByType(session?.timerType || TimerType.Pomodoro) * 60 || 0
   );
 
   useEffect(() => {
