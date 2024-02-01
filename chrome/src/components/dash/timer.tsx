@@ -115,7 +115,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           <div
             key={dot}
             className={`h-2 w-2 rounded-full mx-1 ${
-              dot <= completedSessions % 4
+              dot <= completedSessions 
                 ? 'dark:bg-white bg-black'
                 : 'dark:bg-zinc-800 bg-gray-200'
             }`}

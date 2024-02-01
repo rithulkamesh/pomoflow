@@ -48,7 +48,6 @@ const SessionPage: React.FC<Props> = ({
 }) => {
   const sessionRef = useRef<SessionDoc | null>(session);
 
-  const [completedSessions] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<number>(
     calculateTimeRemaining(session) ?? 0
   );
@@ -65,7 +64,27 @@ const SessionPage: React.FC<Props> = ({
       const res = calculateTimeRemaining(sessionRef.current);
       if (!res) return;
 
-      setTimeRemaining(res);
+      if (res > 0) return setTimeRemaining(res);
+      if (sessionRef.current.timerType != TimerType.Pomodoro)
+        return handleTimerTypeChange(TimerType.Pomodoro);
+
+      const newSession = {
+        ...sessionRef.current,
+        isRunning: false,
+        completedSessions:
+          sessionRef.current.completedSessions + 1 <= 4
+            ? sessionRef.current.completedSessions + 1
+            : 0,
+        timerType:
+          sessionRef.current.completedSessions === 4
+            ? TimerType.LongBreak
+            : TimerType.ShortBreak,
+        pausedTimes: [],
+        sessionStarted: false,
+      };
+
+      setSession(newSession);
+      void updateDoc(dataRef.current, newSession);
     };
     const interval = setInterval(calc, 1000);
 
@@ -113,6 +132,8 @@ const SessionPage: React.FC<Props> = ({
       pausedTimes: [],
       isRunning: false,
       sessionStarted: false,
+      completedSessions: 0,
+      timerType: TimerType.Pomodoro,
     };
 
     setTimeRemaining(
@@ -139,6 +160,7 @@ const SessionPage: React.FC<Props> = ({
       startTime: Date.now(),
       pausedTimes: [],
       isRunning: false,
+      sessionStarted: false,
     };
 
     setSession(newSession);
@@ -154,7 +176,7 @@ const SessionPage: React.FC<Props> = ({
         timerType={session.timerType as TimerType}
         isRunning={!!session.isRunning}
         timeRemaining={timeRemaining}
-        completedSessions={completedSessions}
+        completedSessions={session.completedSessions}
         pomodoroTime={session.pomodoroTime}
         longBreakTime={session.longBreakTime}
         shortBreakTime={session.shortBreakTime}
@@ -164,12 +186,13 @@ const SessionPage: React.FC<Props> = ({
         handleTimerTypeChange={handleTimerTypeChange}
         actionsDisabled={!isHost}
       />
-      <div className='flex items-center gap-2 flex-col'>
-        {isHost && "You're hosting."}
-        <StopSessionDialog stopSession={stopSession}>
-          <Button>Stop session </Button>
-        </StopSessionDialog>
-      </div>
+      {isHost && (
+        <div className='flex items-center gap-2 flex-col'>
+          <StopSessionDialog stopSession={stopSession}>
+            <Button>Stop session </Button>
+          </StopSessionDialog>
+        </div>
+      )}
     </main>
   );
 };

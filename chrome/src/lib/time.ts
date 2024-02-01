@@ -38,13 +38,12 @@ export const calculateTimeRemaining = (session: SessionDoc) => {
     pausedTimes.length === 0
       ? 0
       : pausedTimes.reduce((acc, curr) => {
-        const { start, end } = curr;
-        if (end === null) {
-          return acc + (now - start);
-        }
-        return acc + (end - start);
-      }, 0);
+          const { start, end } = curr;
+          if (end === null) {
+            return acc + (now - start);
+          }
+          return acc + (end - start);
+        }, 0);
 
-  const remainingTime = sessionDuration - elapsedTime + pausedTime;
-  return Math.floor(remainingTime / 1000);
+  return Math.floor((sessionDuration - elapsedTime + pausedTime) / 1000);
 };
