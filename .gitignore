@@ -43,3 +43,6 @@ next-env.d.ts
 
 # dev variables
 .env
+
+# Air deps
+tmp/
