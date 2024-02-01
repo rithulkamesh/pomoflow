@@ -5,6 +5,8 @@ import { db } from '@/lib/firebase';
 import { calculateTimeRemaining, getTimeByType } from '@/lib/time';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
+import { Button } from '../ui/button';
+import { StopSessionDialog } from './StopSessionDialog';
 
 interface Props {
   params: {
@@ -13,6 +15,7 @@ interface Props {
   session: SessionDoc;
   isHost: boolean;
   setSession: React.Dispatch<React.SetStateAction<SessionDoc | null>>;
+  stopSession: () => Promise<void>;
 }
 
 interface Pauses {
@@ -40,6 +43,7 @@ const SessionPage: React.FC<Props> = ({
   session,
   isHost,
   setSession,
+  stopSession,
 }) => {
   const sessionRef = useRef<SessionDoc | null>(session);
 
@@ -156,7 +160,12 @@ const SessionPage: React.FC<Props> = ({
         handleTimerTypeChange={handleTimerTypeChange}
         actionsDisabled={!isHost}
       />
-      {isHost && "You're hosting."}
+      <div className='flex items-center gap-2 flex-col'>
+        {isHost && "You're hosting."}
+        <StopSessionDialog stopSession={stopSession}>
+          <Button>Stop session </Button>
+        </StopSessionDialog>
+      </div>
     </main>
   );
 };
