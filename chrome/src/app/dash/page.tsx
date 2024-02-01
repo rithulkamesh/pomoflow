@@ -10,8 +10,8 @@ import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { SessionDoc } from '../session/[id]/page';
 import { TimerLoading } from '@/components/dash/timerLoading';
+import { SessionDoc } from '@/components/sessions/SessionPage';
 
 export interface UserConfig {
   id: string;
