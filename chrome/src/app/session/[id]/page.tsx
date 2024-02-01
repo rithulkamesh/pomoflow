@@ -1,5 +1,6 @@
 'use client';
 
+import { TimerLoading } from '@/components/dash/timerLoading';
 import SessionPage, { SessionDoc } from '@/components/sessions/SessionPage';
 import { auth, db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -38,7 +39,12 @@ export default function Page({ params }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, router]);
 
-  if (!session || loading) return 'loading...';
+  if (!session || loading)
+    return (
+      <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
+        <TimerLoading />
+      </main>
+    );
 
   return (
     <SessionPage
