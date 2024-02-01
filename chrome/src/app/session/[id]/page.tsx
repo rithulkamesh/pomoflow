@@ -7,11 +7,11 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-type Props = {
+interface Props {
   params: {
     id: string;
   };
-};
+}
 
 export default function Page({ params }: Props) {
   const [session, setSession] = useState<SessionDoc | null>(null);

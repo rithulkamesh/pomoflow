@@ -17,7 +17,7 @@ import { useToast } from '../ui/use-toast';
 
 const Header: React.FC = () => {
   const avatar = createAvatar(notionists, {
-    seed: auth.currentUser!.displayName as string,
+    seed: auth.currentUser!.displayName!,
   });
 
   const router = useRouter();

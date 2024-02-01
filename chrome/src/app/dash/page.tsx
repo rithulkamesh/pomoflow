@@ -63,7 +63,7 @@ const Dash: React.FC = () => {
   };
 
   const toggleTimer = () => {
-    audios.current?.click.play();
+    void audios.current?.click.play();
     if (timeRemaining > 0) {
       setIsRunning((prevState) => !prevState);
     }
@@ -76,9 +76,13 @@ const Dash: React.FC = () => {
   };
 
   const updateTimer = (newTime: number, type: TimerType) => {
-    const ref = doc(db, 'users', auth.currentUser?.uid as string);
+    if (!auth.currentUser?.uid) return;
+
+    const ref = doc(db, 'users', auth.currentUser.uid);
     setUserConfig({ ...userConfig, [type + 'Time']: newTime });
-    updateDoc(ref, { [camelize(type.replace(/ /g, '')) + 'Time']: newTime });
+    void updateDoc(ref, {
+      [camelize(type.replace(/ /g, '')) + 'Time']: newTime,
+    });
   };
 
   // Preload audio
@@ -113,7 +117,7 @@ const Dash: React.FC = () => {
             longBreakTime: 15,
           };
 
-          setDoc(ref, defaultConfig, { merge: true })
+          void setDoc(ref, defaultConfig, { merge: true })
             .then(() => setUserConfig({ id: ss.id, ...defaultConfig }))
             .finally(() => setLoading(false));
         } else {
@@ -177,6 +181,8 @@ const Dash: React.FC = () => {
   }, [userConfig]);
 
   const handleMultiplayer = () => {
+    if (!auth.currentUser?.uid) return;
+
     setLoading(true);
     const ref = doc(db, 'sessions', crypto.randomUUID());
     const sessionData: SessionDoc = {
@@ -186,7 +192,7 @@ const Dash: React.FC = () => {
       pomodoroTime: userConfig.pomodoroTime,
       shortBreakTime: userConfig.shortBreakTime,
       longBreakTime: userConfig.longBreakTime,
-      hostId: auth.currentUser?.uid as string,
+      hostId: auth.currentUser.uid,
       completedSessions,
       guests: [],
       pausedTimes: [],
@@ -199,11 +205,17 @@ const Dash: React.FC = () => {
         router.push(`/session/${ref.id}`);
       })
       .catch((error) => {
+        let message = 'Something went wrong';
+
+        if (error instanceof Error) {
+          message = error.message;
+        }
         toast({
           title: 'Error',
-          description: error.message,
+          description: message,
           variant: 'destructive',
         });
+        return;
       });
   };
 

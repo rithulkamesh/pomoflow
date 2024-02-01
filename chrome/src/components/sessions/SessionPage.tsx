@@ -5,14 +5,14 @@ import { db } from '@/lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
 
-type Props = {
+interface Props {
   params: {
     id: string;
   };
   session: SessionDoc;
   isHost: boolean;
   setSession: React.Dispatch<React.SetStateAction<SessionDoc | null>>;
-};
+}
 
 interface Pauses {
   start: number;
@@ -29,7 +29,7 @@ export interface SessionDoc {
   pomodoroTime: number;
   shortBreakTime: number;
   longBreakTime: number;
-  guests: Array<string>;
+  guests: string[];
   pausedTimes: Pauses[];
   startTime: number;
 }
@@ -103,7 +103,7 @@ const SessionPage: React.FC<Props> = ({
   };
 
   const [timeRemaining, setTimeRemaining] = useState<number>(
-    getTimeByType(session?.timerType || TimerType.Pomodoro) * 60 || 0
+    getTimeByType(session.timerType || TimerType.Pomodoro) * 60 || 0
   );
 
   const toggleTimer = () => {
@@ -181,13 +181,13 @@ const SessionPage: React.FC<Props> = ({
     <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
       <Timer
         loading={false}
-        timerType={session?.timerType as TimerType}
-        isRunning={!!session?.isRunning}
+        timerType={session.timerType as TimerType}
+        isRunning={!!session.isRunning}
         timeRemaining={timeRemaining}
         completedSessions={completedSessions}
-        pomodoroTime={session?.pomodoroTime as number}
-        longBreakTime={session?.longBreakTime as number}
-        shortBreakTime={session?.shortBreakTime as number}
+        pomodoroTime={session.pomodoroTime }
+        longBreakTime={session.longBreakTime }
+        shortBreakTime={session.shortBreakTime }
         resetTimer={resetTimer}
         updateTimer={updateTimer}
         toggleTimer={toggleTimer}
