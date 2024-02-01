@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { volumeAtom } from '@/lib/atoms';
-import { playAudio } from '@/lib/utils';
+import { cn, playAudio } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import {
@@ -19,7 +19,6 @@ import {
   IoPlayOutline,
   IoRefreshOutline,
 } from 'react-icons/io5';
-import { PiSpinnerLight } from 'react-icons/pi';
 
 export enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -28,7 +27,6 @@ export enum TimerType {
 }
 
 interface PomodoroCardProps {
-  loading: boolean;
   isRunning: boolean;
   pomodoroTime: number;
   timerType: TimerType;
@@ -49,7 +47,6 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   pomodoroTime,
   shortBreakTime,
   longBreakTime,
-  loading,
   completedSessions,
   timerType,
   timeRemaining,
@@ -89,19 +86,19 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   }, [volume]);
 
   return (
-    <Card className='py-5 px-14 flex flex-col gap-4 border-0'>
+    <Card className='py-5 px-14 flex flex-col gap-4 border-0 animate-in fade-in-0'>
       <div className='flex gap-2 justify-center'>
         {Object.values(TimerType).map((type) => (
           <Button
             key={type}
             variant='ghost'
-            disabled={loading || actionsDisabled}
+            disabled={actionsDisabled}
             onClick={() => handleTimerTypeChange(type)}
-            className={`${
-              timerType === type
-                ? 'dark:bg-white dark:text-black bg-black text-white'
-                : ''
-            } font-regular`}
+            className={cn(
+              'font-regular',
+              timerType === type &&
+                'dark:bg-white dark:text-black bg-black text-white'
+            )}
           >
             {type}
           </Button>
@@ -111,11 +108,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
       <div className='py-0.5' />
 
       <p className='text-center text-6xl font-extralight flex items-center justify-center'>
-        {loading ? (
-          <PiSpinnerLight className='mr-2 h-[3.75rem] animate-spin' />
-        ) : (
-          formatTime(timeRemaining)
-        )}
+        {formatTime(timeRemaining)}
       </p>
       <div className='flex items-center justify-center'>
         {[1, 2, 3, 4].map((dot) => (
@@ -134,7 +127,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           variant='ghost'
           size='icon'
           onClick={toggleTimer}
-          disabled={loading || actionsDisabled}
+          disabled={actionsDisabled}
           onClickCapture={() => setPlayable(true)}
         >
           {isRunning ? <IoPauseOutline /> : <IoPlayOutline />}
@@ -143,17 +136,13 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           variant='ghost'
           size='icon'
           onClick={resetTimer}
-          disabled={loading || actionsDisabled}
+          disabled={actionsDisabled}
         >
           <IoRefreshOutline />
         </Button>
         <Popover>
           <PopoverTrigger asChild>
-            <Button
-              variant='ghost'
-              size='icon'
-              disabled={loading || actionsDisabled}
-            >
+            <Button variant='ghost' size='icon' disabled={actionsDisabled}>
               <IoCog />
             </Button>
           </PopoverTrigger>
@@ -232,7 +221,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             variant='ghost'
             size='icon'
             onClick={handleMultiplayer}
-            disabled={loading || actionsDisabled}
+            disabled={actionsDisabled}
           >
             <IoPersonAddOutline />
           </Button>
