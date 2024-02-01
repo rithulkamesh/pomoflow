@@ -13,12 +13,14 @@ import { cn, playAudio } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import {
+  IoCloseOutline,
   IoCog,
   IoPauseOutline,
   IoPersonAddOutline,
   IoPlayOutline,
   IoRefreshOutline,
 } from 'react-icons/io5';
+import { StopSessionDialog } from '../sessions/StopSessionDialog';
 
 export enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -40,6 +42,7 @@ interface PomodoroCardProps {
   handleTimerTypeChange: (timerType: TimerType) => void;
   updateTimer: (value: number, timerType: TimerType) => void;
   handleMultiplayer?: () => void;
+  stopSession?: () => Promise<void>;
 }
 
 const PomodoroCard: React.FC<PomodoroCardProps> = ({
@@ -56,6 +59,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   handleTimerTypeChange,
   resetTimer,
   handleMultiplayer,
+  stopSession,
 }) => {
   const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
@@ -115,7 +119,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           <div
             key={dot}
             className={`h-2 w-2 rounded-full mx-1 ${
-              dot <= completedSessions 
+              dot <= completedSessions
                 ? 'dark:bg-white bg-black'
                 : 'dark:bg-zinc-800 bg-gray-200'
             }`}
@@ -140,6 +144,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
         >
           <IoRefreshOutline />
         </Button>
+
         <Popover>
           <PopoverTrigger asChild>
             <Button variant='ghost' size='icon' disabled={actionsDisabled}>
@@ -216,6 +221,16 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             </div>
           </PopoverContent>
         </Popover>
+        {!actionsDisabled && stopSession && (
+          <div className='flex items-center gap-2 flex-col'>
+            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
+            <StopSessionDialog stopSession={stopSession}>
+              <Button variant='ghost' size='icon' disabled={actionsDisabled}>
+                <IoCloseOutline />
+              </Button>
+            </StopSessionDialog>
+          </div>
+        )}
         {handleMultiplayer && (
           <Button
             variant='ghost'

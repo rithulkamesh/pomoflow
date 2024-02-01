@@ -6,8 +6,6 @@ import { calculateTimeRemaining, getTimeByType } from '@/lib/time';
 import { camelize } from '@/lib/utils';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
-import { Button } from '../ui/button';
-import { StopSessionDialog } from './StopSessionDialog';
 
 interface Props {
   params: {
@@ -185,14 +183,8 @@ const SessionPage: React.FC<Props> = ({
         toggleTimer={toggleTimer}
         handleTimerTypeChange={handleTimerTypeChange}
         actionsDisabled={!isHost}
+        stopSession={stopSession}
       />
-      {isHost && (
-        <div className='flex items-center gap-2 flex-col'>
-          <StopSessionDialog stopSession={stopSession}>
-            <Button>Stop session </Button>
-          </StopSessionDialog>
-        </div>
-      )}
     </main>
   );
 };
