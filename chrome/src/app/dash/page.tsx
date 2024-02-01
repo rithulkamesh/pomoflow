@@ -11,6 +11,7 @@ import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { SessionDoc } from '../session/[id]/page';
+import { TimerLoading } from '@/components/dash/timerLoading';
 
 export interface UserConfig {
   id: string;
@@ -206,10 +207,16 @@ const Dash: React.FC = () => {
       });
   };
 
+  if (loading)
+    return (
+      <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
+        <TimerLoading />
+      </main>
+    );
+
   return (
     <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
       <Timer
-        loading={loading}
         timerType={timerType}
         isRunning={isRunning}
         timeRemaining={timeRemaining}
