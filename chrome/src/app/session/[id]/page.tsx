@@ -188,6 +188,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     };
 
     setSession(newSession);
+    setTimeRemaining(getTimeByType(newSession.timerType) * 60);
     updateDoc(ref, newSession);
   };
 
