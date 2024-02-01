@@ -40,11 +40,17 @@ const Header: React.FC = () => {
             <Button
               variant='link'
               onClick={() => {
-                signOut(auth)
+                void signOut(auth)
                   .catch((e) => {
+                    let message = "Couldn't log out";
+
+                    if (e instanceof Error) {
+                      message = e.message;
+                    }
+
                     toast({
                       title: 'Error',
-                      description: e.message,
+                      description: message,
                       variant: 'destructive',
                     });
                   })
