@@ -190,6 +190,7 @@ const Dash: React.FC = () => {
       guests: [],
       pausedTimes: [],
       startTime: Date.now(),
+      sessionStarted: false,
     };
 
     setDoc(ref, sessionData)
