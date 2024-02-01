@@ -19,7 +19,7 @@ export const getTimeByType = (
 };
 
 export const calculateTimeRemaining = (session: SessionDoc) => {
-  if (!session.isRunning || !session.startTime) return;
+  if (!session.startTime) return;
 
   const now = Date.now(); // Current time in miliseconds
   const { startTime, pausedTimes, timerType } = session;

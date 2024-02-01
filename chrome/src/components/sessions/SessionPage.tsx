@@ -49,7 +49,7 @@ const SessionPage: React.FC<Props> = ({
 
   const [completedSessions] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<number>(
-    getTimeByType(session.timerType, session) * 60 || 0
+    calculateTimeRemaining(session) ?? 0
   );
 
   const dataRef = useRef(doc(db, 'sessions', params.id));
