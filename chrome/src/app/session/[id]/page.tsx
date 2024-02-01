@@ -48,23 +48,6 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   const [completedSessions] = useState(0);
   const [isHost, setIsHost] = useState(false);
 
-  const getTimeByType = (timerType: TimerType) => {
-    const { pomodoroTime, shortBreakTime, longBreakTime } =
-      sessionRef.current || DEFAULTS;
-
-    const timeMapping: Record<TimerType, number> = {
-      [TimerType.Pomodoro]: pomodoroTime,
-      [TimerType.ShortBreak]: shortBreakTime,
-      [TimerType.LongBreak]: longBreakTime,
-    };
-
-    return timeMapping[timerType];
-  };
-
-  const [timeRemaining, setTimeRemaining] = useState<number>(
-    getTimeByType(session?.timerType || TimerType.Pomodoro) * 60 || 0
-  );
-
   useEffect(() => {
     const ref = doc(db, 'sessions', params.id);
     const unsubscribe = onSnapshot(ref, (ss) => {
@@ -120,6 +103,23 @@ const SessionPage: React.FC<Props> = ({ params }) => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getTimeByType = (timerType: TimerType) => {
+    const { pomodoroTime, shortBreakTime, longBreakTime } =
+      sessionRef.current || DEFAULTS;
+
+    const timeMapping: Record<TimerType, number> = {
+      [TimerType.Pomodoro]: pomodoroTime,
+      [TimerType.ShortBreak]: shortBreakTime,
+      [TimerType.LongBreak]: longBreakTime,
+    };
+
+    return timeMapping[timerType];
+  };
+
+  const [timeRemaining, setTimeRemaining] = useState<number>(
+    getTimeByType(session?.timerType || TimerType.Pomodoro) * 60 || 0
+  );
 
   const toggleTimer = () => {
     if (!session) return;
