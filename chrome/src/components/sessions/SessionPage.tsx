@@ -2,6 +2,7 @@
 
 import Timer, { TimerType } from '@/components/dash/timer';
 import { db } from '@/lib/firebase';
+import { calculateTimeRemaining, getTimeByType } from '@/lib/time';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -43,6 +44,9 @@ const SessionPage: React.FC<Props> = ({
   const sessionRef = useRef<SessionDoc | null>(session);
 
   const [completedSessions] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState<number>(
+    getTimeByType(session.timerType, session) * 60 || 0
+  );
 
   const dataRef = useRef(doc(db, 'sessions', params.id));
 
@@ -51,60 +55,19 @@ const SessionPage: React.FC<Props> = ({
   }, [session]);
 
   useEffect(() => {
-    const calculateTimeRemaining = () => {
-      if (
-        !sessionRef.current ||
-        !sessionRef.current.isRunning ||
-        !sessionRef.current.startTime
-      )
-        return;
+    const calc = () => {
+      if (!sessionRef.current) return;
+      const res = calculateTimeRemaining(sessionRef.current);
+      if (!res) return;
 
-      const now = Date.now(); // Current time in miliseconds
-      const { startTime, pausedTimes, timerType } = sessionRef.current;
-
-      const sessionDuration = getTimeByType(timerType) * 60 * 1000;
-      const elapsedTime = now - startTime;
-
-      const pausedTime =
-        pausedTimes.length === 0
-          ? 0
-          : pausedTimes.reduce((acc, curr) => {
-            const { start, end } = curr;
-            if (end === null) {
-              return acc + (now - start);
-            }
-            return acc + (end - start);
-          }, 0);
-
-      const remainingTime = sessionDuration - elapsedTime + pausedTime;
-      setTimeRemaining(Math.floor(remainingTime / 1000));
+      setTimeRemaining(res);
     };
-
-    calculateTimeRemaining();
-    const interval = setInterval(calculateTimeRemaining, 1000);
+    const interval = setInterval(calc, 1000);
 
     return () => clearInterval(interval);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getTimeByType = (timerType: TimerType) => {
-    if (!sessionRef.current) return 0;
-
-    const { pomodoroTime, shortBreakTime, longBreakTime } = sessionRef.current;
-
-    const timeMapping: Record<TimerType, number> = {
-      [TimerType.Pomodoro]: pomodoroTime,
-      [TimerType.ShortBreak]: shortBreakTime,
-      [TimerType.LongBreak]: longBreakTime,
-    };
-
-    return timeMapping[timerType];
-  };
-
-  const [timeRemaining, setTimeRemaining] = useState<number>(
-    getTimeByType(session.timerType) * 60 || 0
-  );
 
   const toggleTimer = () => {
     const now = Date.now();
@@ -117,6 +80,7 @@ const SessionPage: React.FC<Props> = ({
         startTime: now,
       };
       setSession(newSession);
+
       void updateDoc(dataRef.current, newSession);
       return;
     }
@@ -146,7 +110,9 @@ const SessionPage: React.FC<Props> = ({
       sessionStarted: false,
     };
 
-    setTimeRemaining(getTimeByType(newSession.timerType) * 60);
+    setTimeRemaining(
+      getTimeByType(newSession.timerType, sessionRef.current) * 60
+    );
     setSession(newSession);
     void updateDoc(dataRef.current, newSession);
   };
@@ -168,7 +134,9 @@ const SessionPage: React.FC<Props> = ({
     };
 
     setSession(newSession);
-    setTimeRemaining(getTimeByType(newSession.timerType) * 60);
+    setTimeRemaining(
+      getTimeByType(newSession.timerType, sessionRef.current) * 60
+    );
     void updateDoc(dataRef.current, newSession);
   };
 
