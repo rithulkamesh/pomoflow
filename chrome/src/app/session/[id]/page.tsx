@@ -47,8 +47,22 @@ const SessionPage: React.FC<Props> = ({ params }) => {
 
   const [completedSessions] = useState(0);
   const [isHost, setIsHost] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(
-    (session?.pomodoroTime ?? DEFAULTS.pomodoroTime) * 60
+
+  const getTimeByType = (timerType: TimerType) => {
+    if (!sessionRef.current) return;
+    const { pomodoroTime, shortBreakTime, longBreakTime } = sessionRef.current;
+
+    const timeMapping: Record<TimerType, number> = {
+      [TimerType.Pomodoro]: pomodoroTime,
+      [TimerType.ShortBreak]: shortBreakTime,
+      [TimerType.LongBreak]: longBreakTime,
+    };
+
+    return timeMapping[timerType];
+  };
+
+  const [timeRemaining, setTimeRemaining] = useState<number>(
+    getTimeByType(session?.timerType) * 60 || 0
   );
 
   useEffect(() => {
@@ -64,18 +78,6 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     return () => unsubscribe();
   });
   const ref = doc(db, 'sessions', params.id);
-
-  const getTimeByType = (timerType: TimerType) => {
-    const { pomodoroTime, shortBreakTime, longBreakTime } = session ?? DEFAULTS;
-
-    const timeMapping: Record<TimerType, number> = {
-      [TimerType.Pomodoro]: pomodoroTime,
-      [TimerType.ShortBreak]: shortBreakTime,
-      [TimerType.LongBreak]: longBreakTime,
-    };
-
-    return timeMapping[timerType];
-  };
 
   useEffect(() => {
     sessionRef.current = session;
@@ -96,18 +98,18 @@ const SessionPage: React.FC<Props> = ({ params }) => {
       const sessionDuration = getTimeByType(timerType) * 60 * 1000;
       const elapsedTime = now - startTime;
 
-      let pausedTime = 0;
-      for (const pause of pausedTimes) {
-        const { start, end } = pause;
-        if (end === null) {
-          pausedTime += now - start;
-        } else {
-          pausedTime += (now - (end - start)) / 1000;
-        }
-      }
+      const pausedTime =
+        pausedTimes.length === 0
+          ? 0
+          : pausedTimes.reduce((acc, curr) => {
+              const { start, end } = curr;
+              if (end === null) {
+                return acc + (now - start);
+              }
+              return acc + (end - start);
+            }, 0);
 
-      const remainingTime = sessionDuration - elapsedTime - pausedTime;
-
+      const remainingTime = sessionDuration - elapsedTime + pausedTime;
       setTimeRemaining(Math.floor(remainingTime / 1000));
     };
 
@@ -121,12 +123,15 @@ const SessionPage: React.FC<Props> = ({ params }) => {
 
   const toggleTimer = () => {
     if (!session) return;
+
+    const now = Date.now();
+
     if (!session.sessionStarted) {
       const newSession = {
         ...session,
         sessionStarted: true,
         isRunning: true,
-        startTime: Date.now(),
+        startTime: now,
       };
       setSession(newSession);
       updateDoc(ref, newSession as any);
@@ -136,13 +141,10 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     const lastPause = session.pausedTimes.slice(-1)[0];
     const newPausedTimes =
       lastPause && lastPause.end === null
-        ? [
-            ...session.pausedTimes.slice(0, -1),
-            { ...lastPause, end: Date.now() },
-          ]
-        : [...session.pausedTimes, { start: Date.now(), end: null }];
+        ? [...session.pausedTimes.slice(0, -1), { ...lastPause, end: now }]
+        : [...session.pausedTimes, { start: now, end: null }];
 
-    const newSession: SessionDoc = {
+    const newSession = {
       ...session,
       isRunning: !session.isRunning,
       pausedTimes: newPausedTimes,
