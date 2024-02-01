@@ -156,7 +156,7 @@ const SessionPage: React.FC<Props> = ({
         handleTimerTypeChange={handleTimerTypeChange}
         actionsDisabled={!isHost}
       />
-      {isHost && 'Host'}
+      {isHost && "You're hosting."}
     </main>
   );
 };
