@@ -44,5 +44,6 @@ next-env.d.ts
 # dev variables
 .env
 
-# Air deps
+# backend deps
 tmp/
+pomoflow-service-account-key.json
