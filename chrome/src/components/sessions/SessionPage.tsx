@@ -3,6 +3,7 @@
 import Timer, { TimerType } from '@/components/dash/timer';
 import { db } from '@/lib/firebase';
 import { calculateTimeRemaining, getTimeByType } from '@/lib/time';
+import { camelize } from '@/lib/utils';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
@@ -122,10 +123,13 @@ const SessionPage: React.FC<Props> = ({
   };
 
   const updateTimer = (value: number, timerType: TimerType) => {
-    console.log(value, timerType);
-    // Update the session pomodoro timer details
+    const newSession = {
+      ...session,
+      [camelize(timerType) + 'Time']: value,
+    };
 
-    console.error('Todo');
+    setSession(newSession);
+    void updateDoc(dataRef.current, newSession);
   };
 
   const handleTimerTypeChange = (timerType: TimerType) => {
