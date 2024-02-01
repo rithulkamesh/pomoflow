@@ -59,8 +59,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     });
 
     return () => unsubscribe();
-  });
-  const ref = doc(db, 'sessions', params.id);
+  }, []);
 
   useEffect(() => {
     sessionRef.current = session;
