@@ -40,7 +40,7 @@ const SessionPage: React.FC<Props> = ({
   isHost,
   setSession,
 }) => {
-  const sessionRef = useRef<SessionDoc | null>(session);
+  const sessionRef = useRef<SessionDoc>(session);
 
   const [completedSessions] = useState(0);
 
@@ -69,12 +69,12 @@ const SessionPage: React.FC<Props> = ({
         pausedTimes.length === 0
           ? 0
           : pausedTimes.reduce((acc, curr) => {
-            const { start, end } = curr;
-            if (end === null) {
-              return acc + (now - start);
-            }
-            return acc + (end - start);
-          }, 0);
+              const { start, end } = curr;
+              if (end === null) {
+                return acc + (now - start);
+              }
+              return acc + (end - start);
+            }, 0);
 
       const remainingTime = sessionDuration - elapsedTime + pausedTime;
       setTimeRemaining(Math.floor(remainingTime / 1000));
