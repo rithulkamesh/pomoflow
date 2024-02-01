@@ -48,18 +48,24 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   const [completedSessions] = useState(0);
   const [isHost, setIsHost] = useState(false);
 
+  const dataRef = useRef(doc(db, 'sessions', params.id));
+
   useEffect(() => {
-    const ref = doc(db, 'sessions', params.id);
-    const unsubscribe = onSnapshot(ref, (ss) => {
+    dataRef.current = doc(db, 'sessions', params.id);
+    const unsubscribe = onSnapshot(dataRef.current, (ss) => {
       const data = ss.data();
       if (!data) return router.push('/404');
       data.hostId === auth.currentUser?.uid && setIsHost(true);
+
+      console.log('datatatata', data);
+
       setSession({ id: ss.id, ...data } as SessionDoc);
+      sessionRef.current = { id: ss.id, ...data } as SessionDoc;
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [params.id, router]);
 
   useEffect(() => {
     sessionRef.current = session;
@@ -133,7 +139,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
         startTime: now,
       };
       setSession(newSession);
-      updateDoc(ref, newSession as any);
+      updateDoc(dataRef.current, newSession as any);
       return;
     }
 
@@ -150,7 +156,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
     };
 
     setSession(newSession);
-    updateDoc(ref, newSession as any);
+    updateDoc(dataRef.current, newSession as any);
   };
 
   const resetTimer = () => {
@@ -166,7 +172,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
 
     setTimeRemaining(getTimeByType(newSession.timerType) * 60);
     setSession(newSession);
-    updateDoc(ref, newSession);
+    updateDoc(dataRef.current, newSession);
   };
 
   const updateTimer = (value: number, timerType: TimerType) => {
@@ -188,7 +194,7 @@ const SessionPage: React.FC<Props> = ({ params }) => {
 
     setSession(newSession);
     setTimeRemaining(getTimeByType(newSession.timerType) * 60);
-    updateDoc(ref, newSession);
+    updateDoc(dataRef.current, newSession);
   };
 
   return (
