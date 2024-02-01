@@ -18,10 +18,17 @@ export const getTimeByType = (
   return timeMapping[timerType];
 };
 
+const getNow = (session: SessionDoc) => {
+  if (session.isRunning) return Date.now();
+  if (session.pausedTimes.length === 0) return session.startTime;
+
+  return session.pausedTimes[session.pausedTimes.length - 1].start;
+};
+
 export const calculateTimeRemaining = (session: SessionDoc) => {
   if (!session.startTime) return;
 
-  const now = Date.now(); // Current time in miliseconds
+  const now = getNow(session); // Current time in miliseconds
   const { startTime, pausedTimes, timerType } = session;
 
   const sessionDuration = getTimeByType(timerType, session) * 60 * 1000;
