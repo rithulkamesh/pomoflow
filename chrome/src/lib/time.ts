@@ -1,7 +1,10 @@
 import { TimerType } from '@/components/dash/timer';
 import { SessionDoc } from '@/components/sessions/SessionPage';
 
-export const getTimeByType = (timerType: TimerType, session?: SessionDoc) => {
+export const getTimeByType = (
+  timerType: TimerType,
+  session: SessionDoc | null
+) => {
   if (!session) return 0;
 
   const { pomodoroTime, shortBreakTime, longBreakTime } = session;
@@ -28,12 +31,12 @@ export const calculateTimeRemaining = (session: SessionDoc) => {
     pausedTimes.length === 0
       ? 0
       : pausedTimes.reduce((acc, curr) => {
-          const { start, end } = curr;
-          if (end === null) {
-            return acc + (now - start);
-          }
-          return acc + (end - start);
-        }, 0);
+        const { start, end } = curr;
+        if (end === null) {
+          return acc + (now - start);
+        }
+        return acc + (end - start);
+      }, 0);
 
   const remainingTime = sessionDuration - elapsedTime + pausedTime;
   return Math.floor(remainingTime / 1000);
