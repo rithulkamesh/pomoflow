@@ -6,13 +6,6 @@ import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 
-const DEFAULTS = {
-  id: '',
-  pomodoroTime: 25,
-  shortBreakTime: 5,
-  longBreakTime: 15,
-};
-
 type Props = {
   params: {
     id: string;
@@ -57,10 +50,11 @@ const SessionPage: React.FC<Props> = ({ params }) => {
       if (!data) return router.push('/404');
       data.hostId === auth.currentUser?.uid && setIsHost(true);
 
-      console.log('datatatata', data);
-
       setSession({ id: ss.id, ...data } as SessionDoc);
       sessionRef.current = { id: ss.id, ...data } as SessionDoc;
+
+      setTimeRemaining(getTimeByType((data as SessionDoc).timerType) * 60);
+
       setLoading(false);
     });
 
@@ -110,8 +104,9 @@ const SessionPage: React.FC<Props> = ({ params }) => {
   }, []);
 
   const getTimeByType = (timerType: TimerType) => {
-    const { pomodoroTime, shortBreakTime, longBreakTime } =
-      sessionRef.current || DEFAULTS;
+    if (!sessionRef.current) return 0;
+
+    const { pomodoroTime, shortBreakTime, longBreakTime } = sessionRef.current;
 
     const timeMapping: Record<TimerType, number> = {
       [TimerType.Pomodoro]: pomodoroTime,
