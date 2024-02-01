@@ -40,7 +40,7 @@ const SessionPage: React.FC<Props> = ({
   isHost,
   setSession,
 }) => {
-  const sessionRef = useRef<SessionDoc>(session);
+  const sessionRef = useRef<SessionDoc | null>(session);
 
   const [completedSessions] = useState(0);
 
@@ -69,12 +69,12 @@ const SessionPage: React.FC<Props> = ({
         pausedTimes.length === 0
           ? 0
           : pausedTimes.reduce((acc, curr) => {
-              const { start, end } = curr;
-              if (end === null) {
-                return acc + (now - start);
-              }
-              return acc + (end - start);
-            }, 0);
+            const { start, end } = curr;
+            if (end === null) {
+              return acc + (now - start);
+            }
+            return acc + (end - start);
+          }, 0);
 
       const remainingTime = sessionDuration - elapsedTime + pausedTime;
       setTimeRemaining(Math.floor(remainingTime / 1000));
@@ -103,12 +103,10 @@ const SessionPage: React.FC<Props> = ({
   };
 
   const [timeRemaining, setTimeRemaining] = useState<number>(
-    getTimeByType(session.timerType || TimerType.Pomodoro) * 60 || 0
+    getTimeByType(session.timerType) * 60 || 0
   );
 
   const toggleTimer = () => {
-    if (!session) return;
-
     const now = Date.now();
 
     if (!session.sessionStarted) {
@@ -119,13 +117,13 @@ const SessionPage: React.FC<Props> = ({
         startTime: now,
       };
       setSession(newSession);
-      updateDoc(dataRef.current, newSession as any);
+      void updateDoc(dataRef.current, newSession);
       return;
     }
 
     const lastPause = session.pausedTimes.slice(-1)[0];
     const newPausedTimes =
-      lastPause && lastPause.end === null
+      (lastPause as typeof lastPause | undefined) && lastPause.end === null
         ? [...session.pausedTimes.slice(0, -1), { ...lastPause, end: now }]
         : [...session.pausedTimes, { start: now, end: null }];
 
@@ -136,12 +134,10 @@ const SessionPage: React.FC<Props> = ({
     };
 
     setSession(newSession);
-    updateDoc(dataRef.current, newSession as any);
+    void updateDoc(dataRef.current, newSession);
   };
 
   const resetTimer = () => {
-    if (!session) return;
-
     const newSession = {
       ...session,
       startTime: Date.now(),
@@ -152,18 +148,17 @@ const SessionPage: React.FC<Props> = ({
 
     setTimeRemaining(getTimeByType(newSession.timerType) * 60);
     setSession(newSession);
-    updateDoc(dataRef.current, newSession);
+    void updateDoc(dataRef.current, newSession);
   };
 
   const updateTimer = (value: number, timerType: TimerType) => {
+    console.log(value, timerType);
     // Update the session pomodoro timer details
 
     console.error('Todo');
   };
 
   const handleTimerTypeChange = (timerType: TimerType) => {
-    if (!session) return;
-
     const newSession = {
       ...session,
       timerType,
@@ -174,20 +169,19 @@ const SessionPage: React.FC<Props> = ({
 
     setSession(newSession);
     setTimeRemaining(getTimeByType(newSession.timerType) * 60);
-    updateDoc(dataRef.current, newSession);
+    void updateDoc(dataRef.current, newSession);
   };
 
   return (
     <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
       <Timer
-        loading={false}
         timerType={session.timerType as TimerType}
         isRunning={!!session.isRunning}
         timeRemaining={timeRemaining}
         completedSessions={completedSessions}
-        pomodoroTime={session.pomodoroTime }
-        longBreakTime={session.longBreakTime }
-        shortBreakTime={session.shortBreakTime }
+        pomodoroTime={session.pomodoroTime}
+        longBreakTime={session.longBreakTime}
+        shortBreakTime={session.shortBreakTime}
         resetTimer={resetTimer}
         updateTimer={updateTimer}
         toggleTimer={toggleTimer}
