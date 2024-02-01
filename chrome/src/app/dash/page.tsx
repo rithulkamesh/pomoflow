@@ -36,7 +36,7 @@ const Dash: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState(
     userConfig.pomodoroTime * 60
   );
-  const [currentBreakType, setCurrentBreakType] = useState(TimerType.Pomodoro);
+  const [, setCurrentBreakType] = useState(TimerType.Pomodoro);
   const audios = useRef<{
     click: HTMLAudioElement;
     complete: HTMLAudioElement;
