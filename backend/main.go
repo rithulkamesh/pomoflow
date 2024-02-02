@@ -4,8 +4,10 @@ import (
 	"context"
 	"net/http"
 	"slices"
+	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/rithulkamesh/pomoflow/web"
 )
@@ -23,8 +25,46 @@ func main() {
 	e.Logger.Fatal(e.Start("localhost:8000"))
 }
 
+type RequestBody struct {
+	PomodoroTime   int `json:"pomodoroTime"`
+	ShortBreakTime int `json:"shortBreakTime"`
+	LongBreakTime  int `json:"longBreakTime"`
+}
+
 func createSession(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	var session web.Session
+	uid := c.Get("userID").(string)
+	var body RequestBody
+
+	if err := c.Bind(&body); err != nil {
+		return c.String(http.StatusBadRequest, "Invalid request body")
+	}
+
+	if body.PomodoroTime < 1 || body.ShortBreakTime < 1 || body.LongBreakTime < 1 {
+		return c.String(http.StatusBadRequest, "Invalid request body")
+	}
+
+	fs := c.Get("firestore").(*firestore.Client)
+	session.ID = uuid.New().String()
+	session.IsRunning = false
+	session.TimerType = web.Pomodoro
+	session.HostID = uid
+	session.SessionStarted = false
+	session.CompletedSessions = 0
+	session.PomodoroTime = body.PomodoroTime
+	session.ShortBreakTime = body.ShortBreakTime
+	session.LongBreakTime = body.LongBreakTime
+	session.Guests = []string{}
+	session.PausedTimes = []web.Pauses{}
+	session.StartTime = int(time.Now().Unix())
+
+	_, err := fs.Doc("sessions/"+session.ID).Set(context.Background(), session)
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error creating session")
+	}
+
+	return c.JSON(http.StatusOK, `{"id": "`+session.ID+`"}`)
 }
 
 func joinSession(c echo.Context) error {
