@@ -15,22 +15,22 @@ import (
 )
 
 type Session struct {
-	ID                string    `json:"id"`
-	IsRunning         bool      `json:"isRunning"`
-	TimerType         TimerType `json:"timerType"`
-	HostID            string    `json:"hostId"`
-	SessionStarted    bool      `json:"sessionStarted"`
-	CompletedSessions int       `json:"completedSessions"`
-	PomodoroTime      int       `json:"pomodoroTime"`
-	ShortBreakTime    int       `json:"shortBreakTime"`
-	LongBreakTime     int       `json:"longBreakTime"`
-	Guests            []string  `json:"guests"`
-	PausedTimes       []Pauses  `json:"pausedTimes"`
-	StartTime         int       `json:"startTime"`
+	ID                string    `json:"id" firestore:"id"`
+	IsRunning         bool      `json:"isRunning" firestore:"isRunning"`
+	TimerType         TimerType `json:"timerType" firestore:"timerType"`
+	HostID            string    `json:"hostId" firestore:"hostId"`
+	SessionStarted    bool      `json:"sessionStarted" firestore:"sessionStarted"`
+	CompletedSessions int       `json:"completedSessions" firestore:"completedSessions"`
+	PomodoroTime      int       `json:"pomodoroTime" firestore:"pomodoroTime"`
+	ShortBreakTime    int       `json:"shortBreakTime" firestore:"shortBreakTime"`
+	LongBreakTime     int       `json:"longBreakTime" firestore:"longBreakTime"`
+	Guests            []string  `json:"guests" firestore:"guests"`
+	PausedTimes       []Pauses  `json:"pausedTimes" firestore:"pausedTimes"`
+	StartTime         int       `json:"startTime" firestore:"startTime"`
 }
 type Pauses struct {
-	StartTime int `json:"startTime"`
-	EndTime   int `json:"endTime"`
+	StartTime int `json:"startTime" firestore:"startTime"`
+	EndTime   int `json:"endTime" firestore:"endTime"`
 }
 
 type TimerType string
@@ -117,7 +117,7 @@ func joinSession(c echo.Context) error {
 	}
 
 	session.Guests = append(session.Guests, uid)
-	_, err = fs.Doc("sessions/"+c.Param("id")).Set(context.Background(), session)
+	_, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
 
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error updating session")
@@ -165,7 +165,7 @@ func leaveSession(c echo.Context) error {
 		}
 	}
 
-	_, err = fs.Doc("sessions/"+c.Param("id")).Set(context.Background(), session)
+	_, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
 
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error updating session")
