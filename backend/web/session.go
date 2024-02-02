@@ -1,4 +1,4 @@
-package internal
+package web
 
 type Session struct {
 	ID                string    `json:"id" firestore:"id"`
