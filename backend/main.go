@@ -32,7 +32,6 @@ type RequestBody struct {
 }
 
 func createSession(c echo.Context) error {
-	var session web.Session
 	uid := c.Get("userID").(string)
 	var body RequestBody
 
@@ -45,19 +44,20 @@ func createSession(c echo.Context) error {
 	}
 
 	fs := c.Get("firestore").(*firestore.Client)
-	session.ID = uuid.New().String()
-	session.IsRunning = false
-	session.TimerType = web.Pomodoro
-	session.HostID = uid
-	session.SessionStarted = false
-	session.CompletedSessions = 0
-	session.PomodoroTime = body.PomodoroTime
-	session.ShortBreakTime = body.ShortBreakTime
-	session.LongBreakTime = body.LongBreakTime
-	session.Guests = []string{}
-	session.PausedTimes = []web.Pauses{}
-	session.StartTime = int(time.Now().Unix())
-
+	var session = web.Session{
+		ID:                uuid.New().String(),
+		IsRunning:         false,
+		TimerType:         web.Pomodoro,
+		HostID:            uid,
+		SessionStarted:    false,
+		CompletedSessions: 0,
+		PomodoroTime:      body.PomodoroTime,
+		ShortBreakTime:    body.ShortBreakTime,
+		LongBreakTime:     body.LongBreakTime,
+		Guests:            []string{},
+		PausedTimes:       []web.Pauses{},
+		StartTime:         int(time.Now().Unix()),
+	}
 	_, err := fs.Doc("sessions/"+session.ID).Set(context.Background(), session)
 
 	if err != nil {
