@@ -51,7 +51,7 @@ func main() {
 	e.GET("/sessions/:id", pingSession)
 	e.POST("/sessions/leave/:id", leaveSession)
 	e.DELETE("/sessions/:id", deleteSession)
-	e.Logger.Fatal(e.Start(":8000"))
+	e.Logger.Fatal(e.Start("localhost:8000"))
 }
 
 func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
