@@ -2,6 +2,8 @@
 'use client';
 
 import Timer, { TimerType } from '@/components/dash/timer';
+import { TimerLoading } from '@/components/dash/timerLoading';
+import { SessionDoc } from '@/components/sessions/SessionPage';
 import { useToast } from '@/components/ui/use-toast';
 import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
@@ -10,8 +12,6 @@ import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { TimerLoading } from '@/components/dash/timerLoading';
-import { SessionDoc } from '@/components/sessions/SessionPage';
 
 export interface UserConfig {
   id: string;
@@ -225,6 +225,9 @@ const Dash: React.FC = () => {
         <TimerLoading />
       </main>
     );
+
+  // TODO: STRICTLY FOR DEV, REMOVE FOR PROD
+  console.log(auth.currentUser?.getIdTokenResult());
 
   return (
     <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>

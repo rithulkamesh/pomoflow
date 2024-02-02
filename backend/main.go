@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"slices"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
@@ -14,33 +15,42 @@ import (
 )
 
 type Session struct {
-	ID                string   `json:"id"`
-	IsRunning         bool     `json:"isRunning"`
-	TimerType         string   `json:"timerType"`
-	HostID            string   `json:"hostId"`
-	SessionStarted    bool     `json:"sessionStarted"`
-	CompletedSessions int      `json:"completedSessions"`
-	PomodoroTime      int      `json:"pomodoroTime"`
-	ShortBreakTime    int      `json:"shortBreakTime"`
-	LongBreakTime     int      `json:"longBreakTime"`
-	Guests            []string `json:"guests"`
-	PausedTimes       []Pauses `json:"pausedTimes"`
-	StartTime         int      `json:"startTime"`
+	ID                string    `json:"id"`
+	IsRunning         bool      `json:"isRunning"`
+	TimerType         TimerType `json:"timerType"`
+	HostID            string    `json:"hostId"`
+	SessionStarted    bool      `json:"sessionStarted"`
+	CompletedSessions int       `json:"completedSessions"`
+	PomodoroTime      int       `json:"pomodoroTime"`
+	ShortBreakTime    int       `json:"shortBreakTime"`
+	LongBreakTime     int       `json:"longBreakTime"`
+	Guests            []string  `json:"guests"`
+	PausedTimes       []Pauses  `json:"pausedTimes"`
+	StartTime         int       `json:"startTime"`
 }
 type Pauses struct {
 	StartTime int `json:"startTime"`
 	EndTime   int `json:"endTime"`
 }
 
+type TimerType string
+
+const (
+	Pomodoro   TimerType = "Pomodoro"
+	ShortBreak TimerType = "Short Break"
+	LongBreak  TimerType = "Long Break"
+)
+
 func main() {
 	e := echo.New()
 	e.Use(FirestoreMiddleware)
 	e.Use(AuthMiddleware)
 
-	e.PUT("/sessions/:id", createSession)
-	e.POST("/sessions/:id", joinSession)
+	e.PUT("/sessions", createSession)
+	e.POST("/session/join/:id", joinSession)
 	e.GET("/sessions/:id", pingSession)
-	e.DELETE("/sessions/:id", leaveSession)
+	e.POST("/sessions/leave/:id", leaveSession)
+	e.DELETE("/sessions/:id", deleteSession)
 	e.Logger.Fatal(e.Start(":8000"))
 }
 
@@ -75,7 +85,8 @@ func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		auth := c.Get("auth").(*auth.Client)
-		_, err := auth.VerifyIDToken(context.Background(), c.Request().Header.Get("Authorization"))
+		token, err := auth.VerifyIDToken(context.Background(), c.Request().Header.Get("Authorization"))
+		c.Set("userID", token.UID)
 		if err != nil {
 			return c.String(http.StatusUnauthorized, "Unauthorized")
 		}
@@ -85,12 +96,33 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func createSession(c echo.Context) error {
-
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
 func joinSession(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	var session Session
+	uid := c.Get("userID").(string)
+
+	fs := c.Get("firestore").(*firestore.Client)
+	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
+
+	if err != nil {
+		return c.String(http.StatusNotFound, "Session not found")
+	}
+
+	doc.DataTo(&session)
+
+	if uid != session.HostID && !slices.Contains(session.Guests, uid) {
+		session.Guests = append(session.Guests, uid)
+	}
+
+	_, err = fs.Doc("sessions/"+c.Param("id")).Set(context.Background(), session)
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error updating session")
+	}
+
+	return c.String(http.StatusOK, "OK")
 }
 
 func pingSession(c echo.Context) error {
@@ -109,5 +141,9 @@ func pingSession(c echo.Context) error {
 }
 
 func leaveSession(c echo.Context) error {
+	return c.String(http.StatusOK, "Hello, World!")
+}
+
+func deleteSession(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
