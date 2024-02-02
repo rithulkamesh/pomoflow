@@ -2,49 +2,18 @@ package main
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"slices"
 
 	"cloud.google.com/go/firestore"
-	firebase "firebase.google.com/go"
-	"firebase.google.com/go/auth"
 	"github.com/labstack/echo/v4"
-
-	"google.golang.org/api/option"
-)
-
-type Session struct {
-	ID                string    `json:"id" firestore:"id"`
-	IsRunning         bool      `json:"isRunning" firestore:"isRunning"`
-	TimerType         TimerType `json:"timerType" firestore:"timerType"`
-	HostID            string    `json:"hostId" firestore:"hostId"`
-	SessionStarted    bool      `json:"sessionStarted" firestore:"sessionStarted"`
-	CompletedSessions int       `json:"completedSessions" firestore:"completedSessions"`
-	PomodoroTime      int       `json:"pomodoroTime" firestore:"pomodoroTime"`
-	ShortBreakTime    int       `json:"shortBreakTime" firestore:"shortBreakTime"`
-	LongBreakTime     int       `json:"longBreakTime" firestore:"longBreakTime"`
-	Guests            []string  `json:"guests" firestore:"guests"`
-	PausedTimes       []Pauses  `json:"pausedTimes" firestore:"pausedTimes"`
-	StartTime         int       `json:"startTime" firestore:"startTime"`
-}
-type Pauses struct {
-	StartTime int `json:"startTime" firestore:"startTime"`
-	EndTime   int `json:"endTime" firestore:"endTime"`
-}
-
-type TimerType string
-
-const (
-	Pomodoro   TimerType = "Pomodoro"
-	ShortBreak TimerType = "Short Break"
-	LongBreak  TimerType = "Long Break"
+	"github.com/rithulkamesh/pomoflow/internal"
 )
 
 func main() {
 	e := echo.New()
-	e.Use(FirestoreMiddleware)
-	e.Use(AuthMiddleware)
+	e.Use(internal.FirestoreMiddleware)
+	e.Use(internal.AuthMiddleware)
 
 	e.PUT("/sessions", createSession)
 	e.GET("/sessions/:id", pingSession)
@@ -54,53 +23,12 @@ func main() {
 	e.Logger.Fatal(e.Start("localhost:8000"))
 }
 
-func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		ctx := context.Background()
-		opt := option.WithCredentialsFile("/home/rithulk/dev/pomotimer/backend/pomoflow-service-account-key.json")
-
-		app, err := firebase.NewApp(ctx, nil, opt)
-		if err != nil {
-			log.Fatalf("Error initializing Firebase app: %v", err)
-		}
-
-		firestore, err := app.Firestore(ctx)
-		if err != nil {
-			log.Fatalf("Error creating Firestore client: %v", err)
-		}
-		defer firestore.Close()
-
-		auth, err := app.Auth(ctx)
-		if err != nil {
-			log.Fatalf("error getting Auth client: %v\n", err)
-		}
-
-		c.Set("firestore", firestore)
-		c.Set("auth", auth)
-
-		return next(c)
-	}
-}
-
-func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		auth := c.Get("auth").(*auth.Client)
-		token, err := auth.VerifyIDToken(context.Background(), c.Request().Header.Get("Authorization"))
-		c.Set("userID", token.UID)
-		if err != nil {
-			return c.String(http.StatusUnauthorized, "Unauthorized")
-		}
-
-		return next(c)
-	}
-}
-
 func createSession(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
 func joinSession(c echo.Context) error {
-	var session Session
+	var session internal.Session
 	uid := c.Get("userID").(string)
 
 	fs := c.Get("firestore").(*firestore.Client)
@@ -131,7 +59,7 @@ func pingSession(c echo.Context) error {
 	fs := c.Get("firestore").(*firestore.Client)
 	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
 
-	var session Session
+	var session internal.Session
 	doc.DataTo(&session)
 
 	if err != nil {
@@ -142,7 +70,7 @@ func pingSession(c echo.Context) error {
 }
 
 func leaveSession(c echo.Context) error {
-	var session Session
+	var session internal.Session
 	uid := c.Get("userID").(string)
 
 	fs := c.Get("firestore").(*firestore.Client)
@@ -175,7 +103,7 @@ func leaveSession(c echo.Context) error {
 }
 
 func deleteSession(c echo.Context) error {
-	var session Session
+	var session internal.Session
 	uid := c.Get("userID").(string)
 
 	fs := c.Get("firestore").(*firestore.Client)
