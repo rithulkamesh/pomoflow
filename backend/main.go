@@ -175,5 +175,27 @@ func leaveSession(c echo.Context) error {
 }
 
 func deleteSession(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	var session Session
+	uid := c.Get("userID").(string)
+
+	fs := c.Get("firestore").(*firestore.Client)
+	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
+
+	if err != nil {
+		return c.String(http.StatusNotFound, "Session not found")
+	}
+
+	doc.DataTo(&session)
+
+	if uid != session.HostID {
+		return c.String(http.StatusUnauthorized, "Unauthorized")
+	}
+
+	_, err = fs.Doc("sessions/" + c.Param("id")).Delete(context.Background())
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error deleting session")
+	}
+
+	return c.String(http.StatusOK, "OK")
 }
