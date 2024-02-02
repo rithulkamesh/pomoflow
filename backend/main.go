@@ -44,7 +44,7 @@ func createSession(c echo.Context) error {
 	}
 
 	fs := c.Get("firestore").(*firestore.Client)
-	var session = web.Session{
+	session := web.Session{
 		ID:                uuid.New().String(),
 		IsRunning:         false,
 		TimerType:         web.Pomodoro,
@@ -64,7 +64,7 @@ func createSession(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Error creating session")
 	}
 
-	return c.JSON(http.StatusOK, `{"id": "`+session.ID+`"}`)
+	return c.JSON(http.StatusOK, map[string]string{"id": session.ID})
 }
 
 func joinSession(c echo.Context) error {
