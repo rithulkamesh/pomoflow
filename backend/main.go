@@ -47,10 +47,10 @@ func main() {
 	e.Use(AuthMiddleware)
 
 	e.PUT("/sessions", createSession)
-	e.POST("/session/join/:id", joinSession)
 	e.GET("/sessions/:id", pingSession)
-	e.POST("/sessions/leave/:id", leaveSession)
 	e.DELETE("/sessions/:id", deleteSession)
+	e.POST("/sessions/join/:id", joinSession)
+	e.POST("/sessions/leave/:id", leaveSession)
 	e.Logger.Fatal(e.Start("localhost:8000"))
 }
 
@@ -112,10 +112,11 @@ func joinSession(c echo.Context) error {
 
 	doc.DataTo(&session)
 
-	if uid != session.HostID && !slices.Contains(session.Guests, uid) {
-		session.Guests = append(session.Guests, uid)
+	if uid == session.HostID || slices.Contains(session.Guests, uid) {
+		return c.String(http.StatusOK, "OK")
 	}
 
+	session.Guests = append(session.Guests, uid)
 	_, err = fs.Doc("sessions/"+c.Param("id")).Set(context.Background(), session)
 
 	if err != nil {
@@ -141,7 +142,36 @@ func pingSession(c echo.Context) error {
 }
 
 func leaveSession(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	var session Session
+	uid := c.Get("userID").(string)
+
+	fs := c.Get("firestore").(*firestore.Client)
+	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
+
+	if err != nil {
+		return c.String(http.StatusNotFound, "Session not found")
+	}
+
+	doc.DataTo(&session)
+
+	if uid == session.HostID || !slices.Contains(session.Guests, uid) {
+		return c.String(http.StatusOK, "OK")
+	}
+
+	for i, guest := range session.Guests {
+		if guest == uid {
+			session.Guests = append(session.Guests[:i], session.Guests[i+1:]...)
+			break
+		}
+	}
+
+	_, err = fs.Doc("sessions/"+c.Param("id")).Set(context.Background(), session)
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error updating session")
+	}
+
+	return c.String(http.StatusOK, "OK")
 }
 
 func deleteSession(c echo.Context) error {
