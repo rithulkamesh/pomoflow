@@ -20,7 +20,7 @@ type Pauses struct {
 	EndTime   int `json:"endTime" firestore:"endTime"`
 }
 
-type Guests struct {
+type Guest struct {
 	ID           string `json:"id" firestore:"id"`
 	LastPingTime int    `json:"lastPingTime" firestore:"lastPingTime"`
 }
