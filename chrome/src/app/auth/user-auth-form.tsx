@@ -2,13 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
 } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import React, { HTMLAttributes, useEffect } from 'react';
 import { FaGoogle, FaSpinner } from 'react-icons/fa6';
@@ -54,14 +55,23 @@ export function UserAuthForm({
           onClick={(e) => {
             e.preventDefault();
             setIsLoading(true);
-            signInWithPopup(auth, new GoogleAuthProvider()).catch(() => {
-              toast({
-                title: 'Authentication Error',
-                description:
-                  "Couldn't authenticate with Google, Please try again.",
+
+            signInWithPopup(auth, new GoogleAuthProvider())
+              .then((res) =>
+                setDoc(doc(db, 'users', res.user.uid), {
+                  id: res.user.uid,
+                  name: res.user.displayName,
+                  email: res.user.email,
+                })
+              )
+              .catch(() => {
+                toast({
+                  title: 'Authentication Error',
+                  description:
+                    "Couldn't authenticate with Google, Please try again.",
+                });
+                setIsLoading(false);
               });
-              setIsLoading(false);
-            });
           }}
         >
           {isLoading ? (
