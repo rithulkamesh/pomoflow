@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
-	"slices"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -54,7 +54,6 @@ func createSession(c echo.Context) error {
 		PomodoroTime:      body.PomodoroTime,
 		ShortBreakTime:    body.ShortBreakTime,
 		LongBreakTime:     body.LongBreakTime,
-		Guests:            []string{},
 		PausedTimes:       []web.Pauses{},
 		StartTime:         int(time.Now().Unix()),
 	}
@@ -80,14 +79,27 @@ func joinSession(c echo.Context) error {
 
 	doc.DataTo(&session)
 
-	if uid == session.HostID || slices.Contains(session.Guests, uid) {
+	existingGuest, err := fs.Doc(fmt.Sprintf("sessions/%s/guests", c.Param("id"), uid)).Get(context.Background())
+
+	if uid == session.HostID || (existingGuest != nil && err == nil && existingGuest.Exists()) {
+		path := "sessions/" + c.Param("id") + "/guests/" + uid
+		_, err = fs.Doc(path).Set(context.Background(), web.Guests{ID: uid, LastPingTime: int(time.Now().Unix())})
+
+		if err != nil {
+			fmt.Println(err, " in update")
+			return c.String(http.StatusInternalServerError, "Error updating session")
+		}
+
 		return c.String(http.StatusOK, "OK")
 	}
 
-	session.Guests = append(session.Guests, uid)
-	_, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
+	// session.Guests = append(session.Guests, uid)
+	// _, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
+
+	_, _, err = fs.Collection(fmt.Sprintf("sessions/%s/guests", c.Param("id"))).Add(context.Background(), web.Guests{ID: uid, LastPingTime: int(time.Now().Unix())})
 
 	if err != nil {
+		fmt.Println(err)
 		return c.String(http.StatusInternalServerError, "Error updating session")
 	}
 
@@ -95,7 +107,6 @@ func joinSession(c echo.Context) error {
 }
 
 func pingSession(c echo.Context) error {
-
 	fs := c.Get("firestore").(*firestore.Client)
 	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
 
@@ -111,7 +122,7 @@ func pingSession(c echo.Context) error {
 
 func leaveSession(c echo.Context) error {
 	var session web.Session
-	uid := c.Get("userID").(string)
+	// uid := c.Get("userID").(string)
 
 	fs := c.Get("firestore").(*firestore.Client)
 	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
@@ -122,18 +133,18 @@ func leaveSession(c echo.Context) error {
 
 	doc.DataTo(&session)
 
-	if uid == session.HostID || !slices.Contains(session.Guests, uid) {
-		return c.String(http.StatusOK, "OK")
-	}
+	// if uid == session.HostID || !slices.Contains(session.Guests, uid) {
+	// 	return c.String(http.StatusOK, "OK")
+	// }
+	//
+	// for i, guest := range session.Guests {
+	// 	if guest == uid {
+	// 		session.Guests = append(session.Guests[:i], session.Guests[i+1:]...)
+	// 		break
+	// 	}
+	// }
 
-	for i, guest := range session.Guests {
-		if guest == uid {
-			session.Guests = append(session.Guests[:i], session.Guests[i+1:]...)
-			break
-		}
-	}
-
-	_, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
+	// _, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
 
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error updating session")

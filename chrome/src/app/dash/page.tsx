@@ -180,7 +180,7 @@ const Dash: React.FC = () => {
     setCompletedSessions(0);
   }, [userConfig]);
 
-  const handleMultiplayer = () => {
+  const createSession = () => {
     if (!auth.currentUser?.uid) return;
 
     setLoading(true);
@@ -194,7 +194,6 @@ const Dash: React.FC = () => {
       longBreakTime: userConfig.longBreakTime,
       hostId: auth.currentUser.uid,
       completedSessions,
-      guests: [],
       pausedTimes: [],
       startTime: Date.now(),
       sessionStarted: false,
@@ -217,6 +216,24 @@ const Dash: React.FC = () => {
         });
         return;
       });
+
+    setDoc(doc(db, 'sessions', ref.id, 'guests', auth.currentUser.uid), {
+      id: auth.currentUser.uid,
+      lastPingTime: Date.now(),
+    })
+      .then(() => {
+        console.log('added host to session');
+      })
+      .catch((err) => {
+        console.error(err);
+        toast({
+          title: 'Error',
+          description: 'Failed to add you to the session',
+          variant: 'destructive',
+        });
+      });
+
+    setLoading(false);
   };
 
   if (loading)
@@ -243,7 +260,7 @@ const Dash: React.FC = () => {
         updateTimer={updateTimer}
         toggleTimer={toggleTimer}
         handleTimerTypeChange={handleTimerTypeChange}
-        handleMultiplayer={handleMultiplayer}
+        handleMultiplayer={createSession}
       />
     </main>
   );

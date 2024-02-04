@@ -14,7 +14,7 @@ import (
 func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := context.Background()
-		opt := option.WithCredentialsFile("/home/rithulk/dev/pomotimer/backend/pomoflow-service-account-key.json")
+		opt := option.WithCredentialsFile("/Users/ahmed/Projects/pomotimer/backend/pomoflow-service-account-key.json")
 
 		app, err := firebase.NewApp(ctx, nil, opt)
 		if err != nil {
@@ -42,6 +42,11 @@ func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		auth := c.Get("auth").(*auth.Client)
+
+		if c.Request().Header.Get("Authorization") == "" {
+			return c.String(http.StatusUnauthorized, "Unauthorized")
+		}
+
 		token, err := auth.VerifyIDToken(context.Background(), c.Request().Header.Get("Authorization"))
 		c.Set("userID", token.UID)
 		if err != nil {

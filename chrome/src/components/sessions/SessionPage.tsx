@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-indexed-object-style */
 'use client';
 
 import Timer, { TimerType } from '@/components/dash/timer';
@@ -32,9 +33,15 @@ export interface SessionDoc {
   pomodoroTime: number;
   shortBreakTime: number;
   longBreakTime: number;
-  guests: string[];
   pausedTimes: Pauses[];
   startTime: number;
+}
+
+export interface SessionGuests {
+  [id: string]: {
+    id: string;
+    lastPingTime: number;
+  };
 }
 
 const SessionPage: React.FC<Props> = ({
