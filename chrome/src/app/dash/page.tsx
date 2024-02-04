@@ -110,7 +110,8 @@ const Dash: React.FC = () => {
       (ss) => {
         const data = { ...ss.data(), id: ss.id } as UserConfig;
 
-        if (!ss.data()) {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!ss.data() || data.pomodoroTime === undefined) {
           const defaultConfig = {
             pomodoroTime: 25,
             shortBreakTime: 5,
