@@ -8,9 +8,17 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/rithulkamesh/pomoflow/web"
 )
+
+func init() {
+	// loads values from .env into the system
+	if err := godotenv.Load(); err != nil {
+		fmt.Errorf("No .env file found \n")
+	}
+}
 
 func main() {
 	e := echo.New()

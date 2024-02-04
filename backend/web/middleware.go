@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
@@ -14,7 +15,15 @@ import (
 func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ctx := context.Background()
-		opt := option.WithCredentialsFile("/Users/ahmed/Projects/pomotimer/backend/pomoflow-service-account-key.json")
+
+		location, exists := os.LookupEnv("FIRESTORE_SERVICE_ACCOUNT_PATH")
+
+		if !exists {
+			log.Fatalf("FIRESTORE_SERVICE_ACCOUNT_PATH not set in environment. \n")
+			return c.String(http.StatusInternalServerError, "Improperly configured server.")
+		}
+
+		opt := option.WithCredentialsFile(location)
 
 		app, err := firebase.NewApp(ctx, nil, opt)
 		if err != nil {
