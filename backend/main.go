@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -16,8 +17,11 @@ import (
 func init() {
 	// loads values from .env into the system
 	if err := godotenv.Load(); err != nil {
-		fmt.Errorf("No .env file found \n")
+		log.Panic("Error loading .env file. Please add it to the root of the projec, and configure it according to .env.example. \n")
+		return
 	}
+
+	log.Println("✅ Loaded .env file")
 }
 
 func main() {
