@@ -91,14 +91,13 @@ func joinSession(c echo.Context) error {
 
 	doc.DataTo(&session)
 
-	existingGuest, err := fs.Doc(fmt.Sprintf("sessions/%s/guests", c.Param("id"))).Get(context.Background())
+	existingGuest, err := fs.Doc(fmt.Sprintf("sessions/%s/guests/%s", c.Param("id"), uid)).Get(context.Background())
 
 	if uid == session.HostID || (existingGuest != nil && err == nil && existingGuest.Exists()) {
 		path := "sessions/" + c.Param("id") + "/guests/" + uid
-		_, err = fs.Doc(path).Set(context.Background(), web.Guests{ID: uid, LastPingTime: int(time.Now().Unix())})
+		_, err = fs.Doc(path).Set(context.Background(), web.Guest{ID: uid, LastPingTime: int(time.Now().Unix())})
 
 		if err != nil {
-			fmt.Println(err, " in update")
 			return c.String(http.StatusInternalServerError, "Error updating session")
 		}
 
@@ -108,10 +107,9 @@ func joinSession(c echo.Context) error {
 	// session.Guests = append(session.Guests, uid)
 	// _, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
 
-	_, _, err = fs.Collection(fmt.Sprintf("sessions/%s/guests", c.Param("id"))).Add(context.Background(), web.Guests{ID: uid, LastPingTime: int(time.Now().Unix())})
+	_, err = fs.Doc(fmt.Sprintf("sessions/%s/guests/%s", c.Param("id"), uid)).Set(context.Background(), web.Guest{ID: uid, LastPingTime: int(time.Now().Unix())})
 
 	if err != nil {
-		fmt.Println(err)
 		return c.String(http.StatusInternalServerError, "Error updating session")
 	}
 
@@ -119,14 +117,28 @@ func joinSession(c echo.Context) error {
 }
 
 func pingSession(c echo.Context) error {
-	fs := c.Get("firestore").(*firestore.Client)
-	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
+	userId := c.Get("userID").(string)
+	sessionID := c.Param("id")
 
-	var session web.Session
-	doc.DataTo(&session)
+	fs := c.Get("firestore").(*firestore.Client)
+	path := fmt.Sprintf("sessions/%s/guests/%s", sessionID, userId)
+	doc, err := fs.Doc(path).Get(context.Background())
 
 	if err != nil {
-		return c.String(http.StatusNotFound, "Session not found")
+		log.Println(err)
+		return c.String(http.StatusNotFound, "Session not found OR user is not part of it.")
+	}
+
+	var guest web.Guest
+	doc.DataTo(&guest)
+
+	// update ping time
+
+	_, err = fs.Doc("sessions/"+c.Param("id")+"/guests/"+userId).Set(context.Background(), web.Guest{ID: userId, LastPingTime: int(time.Now().Unix())})
+
+	if err != nil {
+		c.Logger().Errorf("Failed to update user, error: %v", err)
+		return c.String(http.StatusInternalServerError, "Error updating session")
 	}
 
 	return c.String(http.StatusOK, "OK")
