@@ -68,6 +68,7 @@ func createSession(c echo.Context) error {
 		LongBreakTime:     body.LongBreakTime,
 		PausedTimes:       []web.Pauses{},
 		StartTime:         int(time.Now().Unix()),
+		CreatedAt:         int(time.Now().Unix()),
 	}
 	_, err := fs.Doc("sessions/"+session.ID).Set(context.Background(), session)
 

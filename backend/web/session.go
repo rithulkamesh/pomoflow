@@ -13,6 +13,8 @@ type Session struct {
 	// Guests            []string  `json:"guests" firestore:"guests"`
 	PausedTimes []Pauses `json:"pausedTimes" firestore:"pausedTimes"`
 	StartTime   int      `json:"startTime" firestore:"startTime"`
+
+	CreatedAt int `json:"createdAt" firestore:"createdAt"`
 }
 
 type Pauses struct {
