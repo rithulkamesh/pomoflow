@@ -91,7 +91,7 @@ func joinSession(c echo.Context) error {
 
 	doc.DataTo(&session)
 
-	existingGuest, err := fs.Doc(fmt.Sprintf("sessions/%s/guests", c.Param("id"), uid)).Get(context.Background())
+	existingGuest, err := fs.Doc(fmt.Sprintf("sessions/%s/guests", c.Param("id"))).Get(context.Background())
 
 	if uid == session.HostID || (existingGuest != nil && err == nil && existingGuest.Exists()) {
 		path := "sessions/" + c.Param("id") + "/guests/" + uid
