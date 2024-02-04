@@ -193,7 +193,7 @@ func deleteSession(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "Unauthorized")
 	}
 
-	_, err = fs.Doc("sessions/" + c.Param("id")).Delete(context.Background())
+	_, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "deleted", Value: true}})
 
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error deleting session")
