@@ -29,11 +29,11 @@ func main() {
 	e.Use(web.FirestoreMiddleware)
 	e.Use(web.AuthMiddleware)
 
-	e.PUT("/sessions", createSession)
-	e.GET("/sessions/:id", pingSession)
+	e.POST("/sessions", createSession)
+	e.POST("/sessions/:id/ping", pingSession)
 	e.DELETE("/sessions/:id", deleteSession)
-	e.POST("/sessions/join/:id", joinSession)
-	e.POST("/sessions/leave/:id", leaveSession)
+	e.POST("/sessions/:id/join", joinSession)
+	e.POST("/sessions/:id/leave", leaveSession)
 	e.Logger.Fatal(e.Start("localhost:8000"))
 }
 
@@ -146,7 +146,7 @@ func pingSession(c echo.Context) error {
 
 func leaveSession(c echo.Context) error {
 	var session web.Session
-	// uid := c.Get("userID").(string)
+	uid := c.Get("userID").(string)
 
 	fs := c.Get("firestore").(*firestore.Client)
 	doc, err := fs.Doc("sessions/" + c.Param("id")).Get(context.Background())
@@ -157,24 +157,23 @@ func leaveSession(c echo.Context) error {
 
 	doc.DataTo(&session)
 
-	// if uid == session.HostID || !slices.Contains(session.Guests, uid) {
-	// 	return c.String(http.StatusOK, "OK")
-	// }
-	//
-	// for i, guest := range session.Guests {
-	// 	if guest == uid {
-	// 		session.Guests = append(session.Guests[:i], session.Guests[i+1:]...)
-	// 		break
-	// 	}
-	// }
-
-	// _, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
-
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error updating session")
+	if uid == session.HostID {
+		return c.String(http.StatusTeapot, "Can't really leave if you'e the host, can you?")
 	}
 
-	return c.String(http.StatusOK, "OK")
+	guest, err := fs.Doc("sessions/" + c.Param("id") + "/guests/" + uid).Get(context.Background())
+
+	if err != nil || !guest.Exists() {
+		return c.String(http.StatusNotFound, "User not found in session")
+	}
+
+	_, err = fs.Doc("sessions/" + c.Param("id") + "/guests/" + uid).Delete(context.Background())
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error deleting user from session.")
+	}
+
+	return c.String(http.StatusOK, "Yanked from session.")
 }
 
 func deleteSession(c echo.Context) error {
