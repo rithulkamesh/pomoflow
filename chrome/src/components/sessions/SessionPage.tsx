@@ -37,12 +37,10 @@ export interface SessionDoc {
   startTime: number;
 }
 
-export interface SessionGuests {
-  [id: string]: {
-    id: string;
-    lastPingTime: number;
-  };
-}
+export type SessionGuests = {
+  id: string;
+  lastPingTime: number;
+}[];
 
 const SessionPage: React.FC<Props> = ({
   params,

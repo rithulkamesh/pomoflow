@@ -1,10 +1,13 @@
 'use client';
 
 import { TimerLoading } from '@/components/dash/timerLoading';
-import SessionPage, { SessionDoc } from '@/components/sessions/SessionPage';
+import SessionPage, {
+  SessionDoc,
+  SessionGuests,
+} from '@/components/sessions/SessionPage';
 import { useToast } from '@/components/ui/use-toast';
 import { auth, db } from '@/lib/firebase';
-import { deleteDoc, doc, onSnapshot } from 'firebase/firestore';
+import { collection, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -18,6 +21,7 @@ export default function Page({ params }: Props) {
   const [session, setSession] = useState<SessionDoc | null>(null);
   const [loading, setLoading] = useState(false);
   const [isHost, setIsHost] = useState(false);
+  const [guests, setGuests] = useState<SessionGuests>([]);
   const router = useRouter();
   const { toast } = useToast();
 
@@ -37,7 +41,21 @@ export default function Page({ params }: Props) {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    const unsubGuests = onSnapshot(collection(ref, 'guests'), (ss) => {
+      if (ss.empty) return setGuests([]);
+
+      const data = ss.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setGuests(data as SessionGuests);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubGuests();
+    };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, router]);
@@ -57,7 +75,9 @@ export default function Page({ params }: Props) {
       </main>
     );
 
-  return (
+  return <>
+    <p>Guest count: {guests.length}</p>
+
     <SessionPage
       stopSession={stopSession}
       session={session}
@@ -65,5 +85,6 @@ export default function Page({ params }: Props) {
       params={params}
       setSession={setSession}
     />
-  );
+
+  </ >;
 }
