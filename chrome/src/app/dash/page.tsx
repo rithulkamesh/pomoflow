@@ -170,24 +170,38 @@ const Dash: React.FC = () => {
 
   const createSession = () => {
     if (!auth.currentUser?.uid) return;
-
     setLoading(true);
-    axios
-      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/session`)
-      .then((res) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        router.push(`/session/${res.data.id}`);
-      })
-      .catch((err) => {
-        toast({
-          title: 'Error',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          description: err.message as string,
-          variant: 'destructive',
-        });
-      });
 
-    setLoading(false);
+    (async () => {
+      const token = await auth.currentUser?.getIdToken();
+      axios({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`,
+        method: 'POST',
+        headers: {
+          Authorization: token,
+        },
+        data: {
+          pomodoroTime: userConfig.pomodoroTime,
+          shortBreakTime: userConfig.shortBreakTime,
+          longBreakTime: userConfig.longBreakTime,
+        },
+      })
+        .then((res) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          router.push(`/session/${res.data.id}`);
+        })
+        .catch((err) => {
+          console.log(err);
+          toast({
+            title: 'Error',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            description: err.message as string,
+            variant: 'destructive',
+          });
+          setLoading(false);
+        });
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+    })().catch(() => {});
   };
 
   if (loading)
@@ -196,9 +210,6 @@ const Dash: React.FC = () => {
         <TimerLoading />
       </main>
     );
-
-  console.log(auth.currentUser?.getIdTokenResult());
-
   return (
     <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
       <Timer
