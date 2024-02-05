@@ -35,6 +35,13 @@ export default function Page({ params }: Props) {
 
       const data = ss.data();
       if (!data) return router.push('/dash');
+      if (data.deleted) {
+        toast({
+          title: 'Session Deleted!',
+          description: 'The session was stopped by the host.',
+        });
+        return router.push('/dash');
+      }
       data.hostId === auth.currentUser?.uid && setIsHost(true);
 
       setSession({ id: ss.id, ...data } as SessionDoc);
