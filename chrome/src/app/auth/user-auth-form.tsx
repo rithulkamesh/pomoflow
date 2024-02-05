@@ -62,6 +62,9 @@ export function UserAuthForm({
                   id: res.user.uid,
                   name: res.user.displayName,
                   email: res.user.email,
+                  pomodoroTime: 25,
+                  shortBreakTime: 5,
+                  longBreakTime: 15,
                 })
               )
               .catch(() => {

@@ -8,7 +8,7 @@ import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
 import { camelize, playAudio } from '@/lib/utils';
 import axios from 'axios';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -110,21 +110,8 @@ const Dash: React.FC = () => {
       (ss) => {
         const data = { ...ss.data(), id: ss.id } as UserConfig;
 
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!ss.data() || data.pomodoroTime === undefined) {
-          const defaultConfig = {
-            pomodoroTime: 25,
-            shortBreakTime: 5,
-            longBreakTime: 15,
-          };
-
-          void setDoc(ref, defaultConfig, { merge: true })
-            .then(() => setUserConfig({ id: ss.id, ...defaultConfig }))
-            .finally(() => setLoading(false));
-        } else {
-          setUserConfig(data);
-          setLoading(false);
-        }
+        setUserConfig(data);
+        setLoading(false);
       },
       (error) => {
         toast({
