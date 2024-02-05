@@ -93,8 +93,8 @@ export default function Page({ params }: Props) {
       .then(() => {
         router.push('/dash');
         toast({
-          title: 'Session Stopped',
-          description: 'The session has been stopped',
+          title: 'Session Deleted!',
+          description: 'The session has been stopped successfully.',
         });
       })
       .catch((err) => {
