@@ -191,7 +191,6 @@ const Dash: React.FC = () => {
           router.push(`/session/${res.data.id}`);
         })
         .catch((err) => {
-          console.log(err);
           toast({
             title: 'Error',
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
