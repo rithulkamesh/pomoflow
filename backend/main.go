@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/rithulkamesh/pomoflow/web"
 )
 
@@ -26,6 +27,12 @@ func init() {
 
 func main() {
 	e := echo.New()
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowHeaders: []string{"Authorization", "content-type"},
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodPost, http.MethodDelete},
+	}))
 	e.Use(web.FirestoreMiddleware)
 	e.Use(web.AuthMiddleware)
 
@@ -73,6 +80,7 @@ func createSession(c echo.Context) error {
 	_, err := fs.Doc("sessions/"+session.ID).Set(context.Background(), session)
 
 	if err != nil {
+		fmt.Println(err)
 		return c.String(http.StatusInternalServerError, "Error creating session")
 	}
 
