@@ -6,7 +6,9 @@ import { db } from '@/lib/firebase';
 import { calculateTimeRemaining, getTimeByType } from '@/lib/time';
 import { camelize } from '@/lib/utils';
 import { doc, updateDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
+import { useToast } from '../ui/use-toast';
 
 interface Props {
   params: {
@@ -35,6 +37,7 @@ export interface SessionDoc {
   longBreakTime: number;
   pausedTimes: Pauses[];
   startTime: number;
+  deleted?: boolean;
 }
 
 export type SessionGuests = {
@@ -56,10 +59,20 @@ const SessionPage: React.FC<Props> = ({
   );
 
   const dataRef = useRef(doc(db, 'sessions', params.id));
+  const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     sessionRef.current = session;
-  }, [session]);
+
+    if (session.deleted) {
+      router.push('/dash');
+      toast({
+        title: 'Session has been closed.',
+        description: 'The session you were in has been stopped by the host.',
+      });
+    }
+  }, [session, router, toast]);
 
   useEffect(() => {
     const calc = () => {

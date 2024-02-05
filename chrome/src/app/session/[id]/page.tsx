@@ -7,7 +7,8 @@ import SessionPage, {
 } from '@/components/sessions/SessionPage';
 import { useToast } from '@/components/ui/use-toast';
 import { auth, db } from '@/lib/firebase';
-import { collection, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
+import axios from 'axios';
+import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -37,6 +38,25 @@ export default function Page({ params }: Props) {
       data.hostId === auth.currentUser?.uid && setIsHost(true);
 
       setSession({ id: ss.id, ...data } as SessionDoc);
+      (async () => {
+        const token = await auth.currentUser?.getIdToken();
+        axios({
+          url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}/join`,
+          method: 'POST',
+          headers: {
+            Authorization: token,
+          },
+        }).catch((err) => {
+          toast({
+            title: 'Error',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            description: err.message as string,
+            variant: 'destructive',
+          });
+          setLoading(false);
+        });
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+      })().catch(() => {});
 
       setLoading(false);
     });
@@ -60,13 +80,32 @@ export default function Page({ params }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, router]);
 
-  const stopSession = async () =>
-    deleteDoc(doc(db, 'sessions', params.id)).then(() => {
-      toast({
-        title: 'Session stopped',
-        description: 'The session has been stopped',
+  const stopSession = async () => {
+    const token = await auth.currentUser?.getIdToken();
+
+    await axios({
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}`,
+      method: 'DELETE',
+      headers: {
+        Authorization: token,
+      },
+    })
+      .then(() => {
+        router.push('/dash');
+        toast({
+          title: 'Session Stopped',
+          description: 'The session has been stopped',
+        });
+      })
+      .catch((err) => {
+        toast({
+          title: 'Error',
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          description: err.message as string,
+          variant: 'destructive',
+        });
       });
-    });
+  };
 
   if (!session || loading)
     return (
@@ -75,16 +114,19 @@ export default function Page({ params }: Props) {
       </main>
     );
 
-  return <>
-    <p>Guest count: {guests.length}</p>
+  return (
+    <>
+      {guests.map((guest, index) => (
+        <div key={index}>{guest.id}</div>
+      ))}
 
-    <SessionPage
-      stopSession={stopSession}
-      session={session}
-      isHost={isHost}
-      params={params}
-      setSession={setSession}
-    />
-
-  </ >;
+      <SessionPage
+        stopSession={stopSession}
+        session={session}
+        isHost={isHost}
+        params={params}
+        setSession={setSession}
+      />
+    </>
+  );
 }
