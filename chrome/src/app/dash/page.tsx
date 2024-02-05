@@ -3,11 +3,11 @@
 
 import Timer, { TimerType } from '@/components/dash/timer';
 import { TimerLoading } from '@/components/dash/timerLoading';
-import { SessionDoc } from '@/components/sessions/SessionPage';
 import { useToast } from '@/components/ui/use-toast';
 import { volumeAtom } from '@/lib/atoms';
 import { auth, db } from '@/lib/firebase';
 import { camelize, playAudio } from '@/lib/utils';
+import axios from 'axios';
 import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
@@ -184,51 +184,17 @@ const Dash: React.FC = () => {
     if (!auth.currentUser?.uid) return;
 
     setLoading(true);
-    const ref = doc(db, 'sessions', crypto.randomUUID());
-    const sessionData: SessionDoc = {
-      id: ref.id,
-      isRunning,
-      timerType,
-      pomodoroTime: userConfig.pomodoroTime,
-      shortBreakTime: userConfig.shortBreakTime,
-      longBreakTime: userConfig.longBreakTime,
-      hostId: auth.currentUser.uid,
-      completedSessions,
-      pausedTimes: [],
-      startTime: Date.now(),
-      sessionStarted: false,
-    };
-
-    setDoc(ref, sessionData)
-      .then(() => {
-        router.push(`/session/${ref.id}`);
-      })
-      .catch((error) => {
-        let message = 'Something went wrong';
-
-        if (error instanceof Error) {
-          message = error.message;
-        }
-        toast({
-          title: 'Error',
-          description: message,
-          variant: 'destructive',
-        });
-        return;
-      });
-
-    setDoc(doc(db, 'sessions', ref.id, 'guests', auth.currentUser.uid), {
-      id: auth.currentUser.uid,
-      lastPingTime: Date.now(),
-    })
-      .then(() => {
-        console.log('added host to session');
+    axios
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/session`)
+      .then((res) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        router.push(`/session/${res.data.id}`);
       })
       .catch((err) => {
-        console.error(err);
         toast({
           title: 'Error',
-          description: 'Failed to add you to the session',
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          description: err.message as string,
           variant: 'destructive',
         });
       });
@@ -243,7 +209,6 @@ const Dash: React.FC = () => {
       </main>
     );
 
-  // TODO: STRICTLY FOR DEV, REMOVE FOR PROD
   console.log(auth.currentUser?.getIdTokenResult());
 
   return (
