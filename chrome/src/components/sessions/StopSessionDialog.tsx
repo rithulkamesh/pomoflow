@@ -1,15 +1,16 @@
 import {
   Dialog,
-  DialogTitle,
-  DialogFooter,
-  DialogHeader,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from '@/components/ui/dialog';
-import { useToast } from '../ui/use-toast';
+import { useState } from 'react';
 import { Button } from '../ui/button';
+import { useToast } from '../ui/use-toast';
 
 interface StopSessionDialogProps {
   stopSession: () => Promise<void>;
@@ -21,6 +22,7 @@ export const StopSessionDialog: React.FC<StopSessionDialogProps> = ({
   children,
 }) => {
   const { toast } = useToast();
+  const [confirmed, setConfirmed] = useState<boolean>(false);
 
   return (
     <Dialog>
@@ -34,11 +36,15 @@ export const StopSessionDialog: React.FC<StopSessionDialogProps> = ({
         </DialogHeader>
         <DialogFooter>
           <DialogClose>
-            <Button variant={'ghost'}>Cancel</Button>
+            <Button variant={'ghost'} disabled={confirmed}>
+              Cancel
+            </Button>
           </DialogClose>
 
           <Button
+            disabled={confirmed}
             onClick={() => {
+              setConfirmed(true);
               stopSession().catch(() => {
                 toast({
                   title: 'Error',
