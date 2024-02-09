@@ -123,16 +123,13 @@ export default function Page({ params }: Props) {
 
   return (
     <>
-      {guests.map((guest, index) => (
-        <div key={index}>{guest.id}</div>
-      ))}
-
       <SessionPage
         stopSession={stopSession}
         session={session}
         isHost={isHost}
         params={params}
         setSession={setSession}
+        guests={guests}
       />
     </>
   );

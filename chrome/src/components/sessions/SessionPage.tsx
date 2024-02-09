@@ -8,6 +8,8 @@ import { camelize } from '@/lib/utils';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
+import NotionAvatar from '../NotionAvatar';
+import { Card } from '../ui/card';
 import { useToast } from '../ui/use-toast';
 
 interface Props {
@@ -18,6 +20,7 @@ interface Props {
   isHost: boolean;
   setSession: React.Dispatch<React.SetStateAction<SessionDoc | null>>;
   stopSession: () => Promise<void>;
+  guests: SessionGuests;
 }
 
 interface Pauses {
@@ -43,6 +46,7 @@ export interface SessionDoc {
 export type SessionGuests = {
   id: string;
   lastPingTime: number;
+  name: string;
 }[];
 
 const SessionPage: React.FC<Props> = ({
@@ -51,6 +55,7 @@ const SessionPage: React.FC<Props> = ({
   isHost,
   setSession,
   stopSession,
+  guests,
 }) => {
   const sessionRef = useRef<SessionDoc | null>(session);
 
@@ -203,6 +208,19 @@ const SessionPage: React.FC<Props> = ({
         actionsDisabled={!isHost}
         stopSession={stopSession}
       />
+      <Card className='py-5 px-14 flex flex-col gap-4 animate-in fade-in-0'>
+        {guests.slice(0, 5).map((guest, index) => (
+          <div key={index} className='flex items-center gap-3'>
+            <NotionAvatar name={guest.name} />
+            {guest.name}
+          </div>
+        ))}
+        {guests.length > 5 && (
+          <div className='flex items-center gap-3'>
+            <span>and {guests.length - 5} others</span>
+          </div>
+        )}
+      </Card>
     </main>
   );
 };
