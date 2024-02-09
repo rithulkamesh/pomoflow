@@ -21,6 +21,7 @@ import {
   IoRefreshOutline,
 } from 'react-icons/io5';
 import { StopSessionDialog } from '../sessions/StopSessionDialog';
+import ThemeSwitcher from '../theme/theme-switcher';
 
 export enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -101,7 +102,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             className={cn(
               'font-regular',
               timerType === type &&
-                'dark:bg-white dark:text-black bg-black text-white'
+                'bg-[#D6A27B] text-black hover:bg-[#D6A27B] hover:text-black'
             )}
           >
             {type}
@@ -216,6 +217,10 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
                   <span className='text-sm text-muted-foreground'>
                     {volume}%
                   </span>
+                </div>
+                <div className='grid grid-cols-3 gap-5 justify-center items-center'>
+                  <Label htmlFor='theme'>Theme</Label>
+                  <ThemeSwitcher />
                 </div>
               </div>
             </div>

@@ -1,10 +1,10 @@
-import ThemeSwitcher from '@/components/theme/theme-switcher';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/firebase';
 import { notionists } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import { signOut } from 'firebase/auth';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import {
@@ -25,6 +25,12 @@ const Header: React.FC = () => {
 
   return (
     <div className='flex justify-between items-center h-12 w-screen px-5 my-2'>
+      <Image
+        src={'/pomoflow-logo.svg'}
+        width={50}
+        height={50}
+        alt='pomoflow logo'
+      />
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Avatar>
@@ -62,8 +68,6 @@ const Header: React.FC = () => {
           </DropdownMenuLabel>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <ThemeSwitcher />
     </div>
   );
 };
