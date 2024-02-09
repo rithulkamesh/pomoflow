@@ -89,6 +89,7 @@ func createSession(c echo.Context) error {
 
 func joinSession(c echo.Context) error {
 	var session web.Session
+	var user web.Guest
 	uid := c.Get("userID").(string)
 
 	fs := c.Get("firestore").(*firestore.Client)
@@ -100,11 +101,20 @@ func joinSession(c echo.Context) error {
 
 	doc.DataTo(&session)
 
+	doc, err = fs.Doc("users/" + uid).Get(context.Background())
+
+	if err != nil {
+		return c.String(http.StatusNotFound, "User not found")
+	}
+
+	doc.DataTo(&user)
+
+	user.LastPingTime = int(time.Now().Unix())
 	existingGuest, err := fs.Doc(fmt.Sprintf("sessions/%s/guests/%s", c.Param("id"), uid)).Get(context.Background())
 
 	if uid == session.HostID || (existingGuest != nil && err == nil && existingGuest.Exists()) {
 		path := "sessions/" + c.Param("id") + "/guests/" + uid
-		_, err = fs.Doc(path).Set(context.Background(), web.Guest{ID: uid, LastPingTime: int(time.Now().Unix())})
+		_, err = fs.Doc(path).Set(context.Background(), user)
 
 		if err != nil {
 			return c.String(http.StatusInternalServerError, "Error updating session")

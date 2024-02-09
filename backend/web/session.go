@@ -24,13 +24,15 @@ type Pauses struct {
 
 type Guest struct {
 	ID           string `json:"id" firestore:"id"`
+	Name         string `json:"name" firestore:"name"`
 	LastPingTime int    `json:"lastPingTime" firestore:"lastPingTime"`
 }
 
 type TimerType string
 
 type User struct {
-	ID string `json:"id" firestore:"id"`
+	ID   string `json:"id" firestore:"id"`
+	Name string `json:"name" firestore:"name"`
 }
 
 const (
