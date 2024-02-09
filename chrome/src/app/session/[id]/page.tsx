@@ -76,15 +76,7 @@ export default function Page({ params }: Props) {
         ...doc.data(),
       })) as SessionGuests;
 
-      const currentTime = new Date().getTime();
-      const filteredData = data.filter((guest) => {
-        const lastPingTime = guest.lastPingTime;
-        const timeDifference = currentTime - lastPingTime;
-        const timeDifferenceInSeconds = timeDifference / 1000;
-        return timeDifferenceInSeconds < 10;
-      });
-
-      setGuests(filteredData);
+      setGuests(data);
     });
 
     return () => {
