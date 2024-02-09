@@ -122,6 +122,23 @@ export default function Page({ params }: Props) {
       });
   };
 
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    const interval = setInterval(async () => {
+      const token = await auth.currentUser?.getIdToken();
+
+      await axios({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}/ping`,
+        method: 'POST',
+        headers: {
+          Authorization: token,
+        },
+      });
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   if (!session || loading)
     return (
       <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>

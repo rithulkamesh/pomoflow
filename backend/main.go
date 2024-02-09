@@ -153,7 +153,8 @@ func pingSession(c echo.Context) error {
 
 	// update ping time
 
-	_, err = fs.Doc("sessions/"+c.Param("id")+"/guests/"+userId).Set(context.Background(), web.Guest{ID: userId, LastPingTime: int(time.Now().Unix())})
+	guest.LastPingTime = int(time.Now().Unix())
+	_, err = fs.Doc("sessions/"+c.Param("id")+"/guests/"+userId).Set(context.Background(), guest)
 
 	if err != nil {
 		c.Logger().Errorf("Failed to update user, error: %v", err)
