@@ -1,12 +1,10 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { auth } from '@/lib/firebase';
-import { notionists } from '@dicebear/collection';
-import { createAvatar } from '@dicebear/core';
 import { signOut } from 'firebase/auth';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import NotionAvatar from '../NotionAvatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +14,6 @@ import {
 import { useToast } from '../ui/use-toast';
 
 const Header: React.FC = () => {
-  const avatar = createAvatar(notionists, {
-    seed: auth.currentUser!.displayName!,
-  });
-
   const router = useRouter();
   const { toast } = useToast();
 
@@ -33,13 +27,7 @@ const Header: React.FC = () => {
       />
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Avatar>
-            <AvatarImage
-              src={avatar.toDataUriSync()}
-              className='dark:bg-white'
-            />
-            <AvatarFallback>{auth.currentUser?.displayName}</AvatarFallback>
-          </Avatar>
+          <NotionAvatar name={auth.currentUser!.displayName!} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className='ml-2 mt-1 p-0'>
           <DropdownMenuLabel>
