@@ -74,9 +74,17 @@ export default function Page({ params }: Props) {
       const data = ss.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as SessionGuests;
 
-      setGuests(data as SessionGuests);
+      const currentTime = new Date().getTime();
+      const filteredData = data.filter((guest) => {
+        const lastPingTime = guest.lastPingTime;
+        const timeDifference = currentTime - lastPingTime;
+        const timeDifferenceInSeconds = timeDifference / 1000;
+        return timeDifferenceInSeconds < 10;
+      });
+
+      setGuests(filteredData);
     });
 
     return () => {

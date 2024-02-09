@@ -208,19 +208,21 @@ const SessionPage: React.FC<Props> = ({
         actionsDisabled={!isHost}
         stopSession={stopSession}
       />
-      <Card className='py-5 px-14 flex flex-col gap-4 animate-in fade-in-0'>
-        {guests.slice(0, 5).map((guest, index) => (
-          <div key={index} className='flex items-center gap-3'>
-            <NotionAvatar name={guest.name} />
-            {guest.name}
-          </div>
-        ))}
-        {guests.length > 5 && (
-          <div className='flex items-center gap-3'>
-            <span>and {guests.length - 5} others</span>
-          </div>
-        )}
-      </Card>
+      {guests.length >= 1 && (
+        <Card className='py-5 px-14 flex flex-col gap-4 animate-in fade-in-0'>
+          {guests.slice(0, 5).map((guest, index) => (
+            <div key={index} className='flex items-center gap-3'>
+              <NotionAvatar name={guest.name} />
+              {guest.name}
+            </div>
+          ))}
+          {guests.length > 5 && (
+            <div className='flex items-center gap-3'>
+              <span>and {guests.length - 5} others</span>
+            </div>
+          )}
+        </Card>
+      )}
     </main>
   );
 };
