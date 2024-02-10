@@ -12,17 +12,13 @@ Also firebase-enabled so that setting up a self-hosted version is as easy as cak
 
 ## Monorepo Structure
 
-### chrome/
+### src/
 
 The frontend of the application, written with [Next.js](https://nextjs.org) with the help of [shadcn/ui](https://github.com/shadcn/ui). A perfect blend of aesthetics and intuitive functionality, hand crafted to perfection.
 
 ### backend/
 
 Used to certain shield session activities from the frontend to prevent unauthorized access. Written with go with the help of [Labstack Echo](https://echo.labstack.com/) to balance performace with ease of readability.
-
-### desktimer/ (wip)
-
-Code for the hardware desk device made with an ESP32 and an OLED module to display the timer with the help of internet protocol, Also includes keys to control the timer (pause/resume, reset)
 
 ## License
 
