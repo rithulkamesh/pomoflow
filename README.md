@@ -20,7 +20,7 @@ The frontend of the application, written with [Next.js](https://nextjs.org) with
 
 Used to certain shield session activities from the frontend to prevent unauthorized access. Written with go with the help of [Labstack Echo](https://echo.labstack.com/) to balance performace with ease of readability.
 
-### src/ (wip)
+### desktimer/ (wip)
 
 Code for the hardware desk device made with an ESP32 and an OLED module to display the timer with the help of internet protocol, Also includes keys to control the timer (pause/resume, reset)
 
