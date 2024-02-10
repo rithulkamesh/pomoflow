@@ -71,10 +71,15 @@ export default function Page({ params }: Props) {
     const unsubGuests = onSnapshot(collection(ref, 'guests'), (ss) => {
       if (ss.empty) return setGuests([]);
 
-      const data = ss.docs.map((doc) => ({
+      let data = ss.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as SessionGuests;
+
+      data = data.filter(
+        (guest) =>
+          Math.floor(new Date().getTime() / 1000 - guest.lastPingTime) < 12
+      );
 
       setGuests(data);
     });
