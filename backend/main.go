@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -30,7 +31,12 @@ func main() {
 	e.DELETE("/sessions/:id", deleteSession)
 	e.POST("/sessions/:id/join", joinSession)
 	e.POST("/sessions/:id/leave", leaveSession)
-	e.Logger.Fatal(e.Start("localhost:8000"))
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	e.Logger.Fatal(e.Start("0.0.0.0:" + port))
 }
 
 type RequestBody struct {
