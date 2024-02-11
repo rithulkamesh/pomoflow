@@ -47,3 +47,6 @@ next-env.d.ts
 # backend deps
 tmp/
 pomoflow-service-account-key.json
+
+# turborepo
+.turbo

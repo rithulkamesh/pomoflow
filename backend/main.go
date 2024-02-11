@@ -9,21 +9,10 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rithulkamesh/pomoflow/web"
 )
-
-func init() {
-	// loads values from .env into the system
-	if err := godotenv.Load(); err != nil {
-		log.Panic("Error loading .env file. Please add it to the root of the projec, and configure it according to .env.example. \n")
-		return
-	}
-
-	log.Println("✅ Loaded .env file")
-}
 
 func main() {
 	e := echo.New()
