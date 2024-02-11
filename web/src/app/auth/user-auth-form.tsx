@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
   signInWithPopup,
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import React, { HTMLAttributes, useEffect } from 'react';
 import { FaGoogle, FaSpinner } from 'react-icons/fa6';
@@ -57,17 +57,27 @@ export function UserAuthForm({
             setIsLoading(true);
 
             signInWithPopup(auth, new GoogleAuthProvider())
-              .then((res) =>
-                setDoc(doc(db, 'users', res.user.uid), {
+              .then(async (res) => {
+                const existingUser = await getDoc(
+                  doc(db, 'users', res.user.uid)
+                );
+
+                if (existingUser.exists()) {
+                  return;
+                }
+
+                return setDoc(doc(db, 'users', res.user.uid), {
                   id: res.user.uid,
                   name: res.user.displayName,
                   email: res.user.email,
                   pomodoroTime: 25,
                   shortBreakTime: 5,
                   longBreakTime: 15,
-                })
-              )
-              .catch(() => {
+                });
+              })
+              .catch((err) => {
+                console.error('Something went wrong with auth', err)
+
                 toast({
                   title: 'Authentication Error',
                   description:
