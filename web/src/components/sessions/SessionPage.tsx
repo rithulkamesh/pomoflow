@@ -9,8 +9,9 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import NotionAvatar from '../NotionAvatar';
-import { Card } from '../ui/card';
 import { useToast } from '../ui/use-toast';
+import { WithTooltip } from '../common/withTooltip';
+import { TooltipProvider } from '../ui/tooltip';
 
 interface Props {
   params: {
@@ -192,38 +193,45 @@ const SessionPage: React.FC<Props> = ({
   };
 
   return (
-    <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
-      <Timer
-        timerType={session.timerType as TimerType}
-        isRunning={!!session.isRunning}
-        timeRemaining={timeRemaining}
-        completedSessions={session.completedSessions}
-        pomodoroTime={session.pomodoroTime}
-        longBreakTime={session.longBreakTime}
-        shortBreakTime={session.shortBreakTime}
-        resetTimer={resetTimer}
-        updateTimer={updateTimer}
-        toggleTimer={toggleTimer}
-        handleTimerTypeChange={handleTimerTypeChange}
-        actionsDisabled={!isHost}
-        stopSession={stopSession}
-      />
-      {guests.length >= 1 && (
-        <Card className='py-5 px-14 flex flex-col gap-4 animate-in fade-in-0'>
-          {guests.slice(0, 5).map((guest, index) => (
-            <div key={index} className='flex items-center gap-3'>
-              <NotionAvatar name={guest.name} />
-              {guest.name}
-            </div>
-          ))}
-          {guests.length > 5 && (
-            <div className='flex items-center gap-3'>
-              <span>and {guests.length - 5} others</span>
-            </div>
-          )}
-        </Card>
-      )}
-    </main>
+    <TooltipProvider>
+      <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
+        <Timer
+          timerType={session.timerType as TimerType}
+          isRunning={!!session.isRunning}
+          timeRemaining={timeRemaining}
+          completedSessions={session.completedSessions}
+          pomodoroTime={session.pomodoroTime}
+          longBreakTime={session.longBreakTime}
+          shortBreakTime={session.shortBreakTime}
+          resetTimer={resetTimer}
+          updateTimer={updateTimer}
+          toggleTimer={toggleTimer}
+          handleTimerTypeChange={handleTimerTypeChange}
+          actionsDisabled={!isHost}
+          stopSession={stopSession}
+        />
+
+        <div className='flex items-center overflow-visible'>
+          {guests.length >= 1 &&
+            guests
+              .slice(0, 10)
+              .sort((a) => (a.id === session.hostId ? -1 : 1))
+              .map((guest, index) => (
+                <div
+                  key={index}
+                  className='flex items-center gap-3 -mr-4 overflow-visible'
+                >
+                  <WithTooltip text={guest.name}>
+                    <NotionAvatar
+                      className='border rounded-full cursor-pointer hover:scale-[1.2] transition-all'
+                      name={guest.name}
+                    />
+                  </WithTooltip>
+                </div>
+              ))}
+        </div>
+      </main>
+    </TooltipProvider>
   );
 };
 
