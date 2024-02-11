@@ -121,7 +121,7 @@ func joinSession(c echo.Context) error {
 	// session.Guests = append(session.Guests, uid)
 	// _, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
 
-	_, err = fs.Doc(fmt.Sprintf("sessions/%s/guests/%s", c.Param("id"), uid)).Set(context.Background(), web.Guest{ID: uid, LastPingTime: int(time.Now().Unix())})
+	_, err = fs.Doc(fmt.Sprintf("sessions/%s/guests/%s", c.Param("id"), uid)).Set(context.Background(), web.Guest{ID: uid, LastPingTime: int(time.Now().Unix()), Name: user.Name})
 
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error updating session")
