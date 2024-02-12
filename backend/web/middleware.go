@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var LastGlobalHealthCheck int = 0
+var LastGlobalHealthCheck int
 
 func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -34,18 +34,20 @@ func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("firestore", firestore)
 		c.Set("auth", auth)
 
-		go checkGlobalHealth(firestore, LastGlobalHealthCheck)
+		fmt.Println("Current last global health", LastGlobalHealthCheck)
+
+		go checkGlobalHealth(firestore, &LastGlobalHealthCheck)
 
 		return next(c)
 	}
 }
 
-func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck int) {
+func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck *int) {
 	fmt.Println("Starting check global health")
 
-	if int(time.Now().Unix())-LastGlobalHealthCheck > 1800 {
+	if int(time.Now().Unix())-*LastGlobalHealthCheck > 1800 {
 		fmt.Println("Checking health - enough time passed since last check")
-		LastGlobalHealthCheck = int(time.Now().Unix())
+		*LastGlobalHealthCheck = int(time.Now().Unix())
 
 		iter := firestore.Collection("sessions").Where("deleted", "==", false).Documents(context.Background())
 		for {
