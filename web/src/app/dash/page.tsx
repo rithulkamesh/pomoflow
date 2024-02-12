@@ -12,7 +12,7 @@ import axios from 'axios';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface UserConfig {
   id: string;
@@ -62,7 +62,13 @@ const Dash: React.FC = () => {
   };
 
   const toggleTimer = () => {
-    play('click');
+    play('click').catch((e) => {
+      toast({
+        title: 'Error',
+        description: e.message as string,
+        variant: 'destructive',
+      });
+    });
     if (timeRemaining > 0) {
       setIsRunning((prevState) => !prevState);
     }
