@@ -48,7 +48,10 @@ func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck int) {
+	fmt.Println("Starting check global health")
+
 	if int(time.Now().Unix())-LastGlobalHealthCheck > 1800 {
+		fmt.Println("Checking health - enough time passed since last check")
 		LastGlobalHealthCheck = int(time.Now().Unix())
 
 		iter := firestore.Collection("sessions").Where("deleted", "==", false).Documents(context.Background())
@@ -62,21 +65,23 @@ func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck int) {
 			CheckSessionHealth(firestore, session.ID)
 		}
 
-		iter = firestore.Collection("sessions").Where("deleted", "==", true).Documents(context.Background())
-		for {
-			doc, err := iter.Next()
-			if err != nil {
-				break
-			}
-			var session Session
-			doc.DataTo(&session)
+		fmt.Println("Iterated through sessions and checked health. Exiting.")
 
-			_, err = firestore.Doc("sessions/" + session.ID).Delete(context.Background())
-			if err != nil {
-				log.Println("Error deleting session")
-			}
-
-		}
+		// iter = firestore.Collection("sessions").Where("deleted", "==", true).Documents(context.Background())
+		// for {
+		// 	doc, err := iter.Next()
+		// 	if err != nil {
+		// 		break
+		// 	}
+		// 	var session Session
+		// 	doc.DataTo(&session)
+		//
+		// 	_, err = firestore.Doc("sessions/" + session.ID).Delete(context.Background())
+		// 	if err != nil {
+		// 		log.Println("Error deleting session")
+		// 	}
+		//
+		// }
 	}
 }
 
