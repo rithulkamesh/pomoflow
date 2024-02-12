@@ -10,15 +10,11 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
 	"github.com/rithulkamesh/pomoflow/web"
 )
-
-func init() {
-	godotenv.Load()
-}
 
 func main() {
 	e := echo.New()
@@ -30,7 +26,7 @@ func main() {
 	}))
 
 	e.Use(web.FirestoreMiddleware)
-	e.GET("/sessions/:id/checkhealth", checkSessionHealthRoute)
+	e.GET("/sessions/:id/checkhealth", checkHealth)
 
 	sessions := e.Group("/sessions")
 	sessions.Use(web.AuthMiddleware)
@@ -54,50 +50,10 @@ type RequestBody struct {
 	LongBreakTime  int `json:"longBreakTime"`
 }
 
-func checkSessionHealth(fs *firestore.Client, sessionID string) error {
-	path := "sessions/" + sessionID + "/guests"
-	iter := fs.Collection(path).Documents(context.Background())
-
-	var guests []web.Guest
-	for {
-		doc, err := iter.Next()
-		if err != nil {
-			break
-		}
-		var guest web.Guest
-		doc.DataTo(&guest)
-		guests = append(guests, guest)
-	}
-
-	for i, guest := range guests {
-		if int(time.Now().Unix())-guest.LastPingTime > 30 {
-			_, err := fs.Doc("sessions/" + sessionID + "/guests/" + guest.ID).Delete(context.Background())
-			if err != nil {
-				return fmt.Errorf("error deleting guest")
-			}
-			guests = append(guests[:i], guests[i+1:]...)
-		}
-	}
-
-	if len(guests) == 0 {
-		_, err := fs.Doc("sessions/" + sessionID).Delete(context.Background())
-		if err != nil {
-			return fmt.Errorf("error deleting session")
-		}
-	} else {
-		_, err := fs.Doc("sessions/"+sessionID).Update(context.Background(), []firestore.Update{{Path: "lastHealthCheck", Value: int(time.Now().Unix())}})
-		if err != nil {
-			return fmt.Errorf("error updating session")
-		}
-	}
-
-	return nil
-}
-
-func checkSessionHealthRoute(c echo.Context) error {
+func checkHealth(c echo.Context) error {
 	fs := c.Get("firestore").(*firestore.Client)
 
-	err := checkSessionHealth(fs, c.Param("ID"))
+	err := web.CheckSessionHealth(fs, c.Param("ID"))
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error checking session health")
 	}
@@ -178,9 +134,6 @@ func joinSession(c echo.Context) error {
 		return c.String(http.StatusOK, "OK")
 	}
 
-	// session.Guests = append(session.Guests, uid)
-	// _, err = fs.Doc("sessions/"+c.Param("id")).Update(context.Background(), []firestore.Update{{Path: "guests", Value: session.Guests}})
-
 	_, err = fs.Doc(fmt.Sprintf("sessions/%s/guests/%s", c.Param("id"), uid)).Set(context.Background(), web.Guest{ID: uid, LastPingTime: int(time.Now().Unix()), Name: user.Name})
 
 	if err != nil {
@@ -216,7 +169,7 @@ func pingSession(c echo.Context) error {
 	doc.DataTo(&session)
 
 	if int(time.Now().Unix())-session.LastHealthCheck > 30 {
-		err := checkSessionHealth(fs, sessionID)
+		err := web.CheckSessionHealth(fs, sessionID)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, "Error checking session health")
 		}

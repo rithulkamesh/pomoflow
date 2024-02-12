@@ -43,6 +43,7 @@ next-env.d.ts
 
 # dev variables
 .env
+.envrc
 
 # backend deps
 tmp/
@@ -50,3 +51,6 @@ pomoflow-service-account-key.json
 
 # turborepo
 .turbo
+
+# dev scripts
+keep-alive.sh
