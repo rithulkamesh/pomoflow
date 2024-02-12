@@ -11,8 +11,9 @@ type Session struct {
 	ShortBreakTime    int       `json:"shortBreakTime" firestore:"shortBreakTime"`
 	LongBreakTime     int       `json:"longBreakTime" firestore:"longBreakTime"`
 	// Guests            []string  `json:"guests" firestore:"guests"`
-	PausedTimes []Pauses `json:"pausedTimes" firestore:"pausedTimes"`
-	StartTime   int      `json:"startTime" firestore:"startTime"`
+	PausedTimes     []Pauses `json:"pausedTimes" firestore:"pausedTimes"`
+	StartTime       int      `json:"startTime" firestore:"startTime"`
+	LastHealthCheck int      `json:"lastPingTime" firestore:"lastHealthCheck"`
 
 	CreatedAt int `json:"createdAt" firestore:"createdAt"`
 }

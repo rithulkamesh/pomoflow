@@ -158,7 +158,7 @@ const Dash: React.FC = () => {
     (async () => {
       const token = await auth.currentUser?.getIdToken();
       axios({
-        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions`,
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/`,
         method: 'POST',
         headers: {
           Authorization: token,

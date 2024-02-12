@@ -10,10 +10,15 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/rithulkamesh/pomoflow/web"
 )
+
+func init() {
+	godotenv.Load()
+}
 
 func main() {
 	e := echo.New()
@@ -23,14 +28,18 @@ func main() {
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{http.MethodPost, http.MethodDelete},
 	}))
-	e.Use(web.FirestoreMiddleware)
-	e.Use(web.AuthMiddleware)
 
-	e.POST("/sessions", createSession)
-	e.POST("/sessions/:id/ping", pingSession)
-	e.DELETE("/sessions/:id", deleteSession)
-	e.POST("/sessions/:id/join", joinSession)
-	e.POST("/sessions/:id/leave", leaveSession)
+	e.Use(web.FirestoreMiddleware)
+	e.GET("/sessions/:id/checkhealth", checkSessionHealthRoute)
+
+	sessions := e.Group("/sessions")
+	sessions.Use(web.AuthMiddleware)
+
+	sessions.POST("/", createSession)
+	sessions.POST("/:id/ping", pingSession)
+	sessions.DELETE("/:id", deleteSession)
+	sessions.POST("/:id/join", joinSession)
+	sessions.POST("/:id/leave", leaveSession)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -43,6 +52,57 @@ type RequestBody struct {
 	PomodoroTime   int `json:"pomodoroTime"`
 	ShortBreakTime int `json:"shortBreakTime"`
 	LongBreakTime  int `json:"longBreakTime"`
+}
+
+func checkSessionHealth(fs *firestore.Client, sessionID string) error {
+	path := "sessions/" + sessionID + "/guests"
+	iter := fs.Collection(path).Documents(context.Background())
+
+	var guests []web.Guest
+	for {
+		doc, err := iter.Next()
+		if err != nil {
+			break
+		}
+		var guest web.Guest
+		doc.DataTo(&guest)
+		guests = append(guests, guest)
+	}
+
+	for i, guest := range guests {
+		if int(time.Now().Unix())-guest.LastPingTime > 30 {
+			_, err := fs.Doc("sessions/" + sessionID + "/guests/" + guest.ID).Delete(context.Background())
+			if err != nil {
+				return fmt.Errorf("error deleting guest")
+			}
+			guests = append(guests[:i], guests[i+1:]...)
+		}
+	}
+
+	if len(guests) == 0 {
+		_, err := fs.Doc("sessions/" + sessionID).Delete(context.Background())
+		if err != nil {
+			return fmt.Errorf("error deleting session")
+		}
+	} else {
+		_, err := fs.Doc("sessions/"+sessionID).Update(context.Background(), []firestore.Update{{Path: "lastHealthCheck", Value: int(time.Now().Unix())}})
+		if err != nil {
+			return fmt.Errorf("error updating session")
+		}
+	}
+
+	return nil
+}
+
+func checkSessionHealthRoute(c echo.Context) error {
+	fs := c.Get("firestore").(*firestore.Client)
+
+	err := checkSessionHealth(fs, c.Param("ID"))
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error checking session health")
+	}
+
+	return c.String(http.StatusOK, "OK")
 }
 
 func createSession(c echo.Context) error {
@@ -137,6 +197,7 @@ func pingSession(c echo.Context) error {
 	fs := c.Get("firestore").(*firestore.Client)
 	path := fmt.Sprintf("sessions/%s/guests/%s", sessionID, userId)
 	doc, err := fs.Doc(path).Get(context.Background())
+	var session web.Session
 
 	if err != nil {
 		log.Println(err)
@@ -146,7 +207,20 @@ func pingSession(c echo.Context) error {
 	var guest web.Guest
 	doc.DataTo(&guest)
 
-	// update ping time
+	doc, err = fs.Doc("sessions/" + sessionID).Get(context.Background())
+
+	if err != nil {
+		return c.String(http.StatusNotFound, "Session not found")
+	}
+
+	doc.DataTo(&session)
+
+	if int(time.Now().Unix())-session.LastHealthCheck > 30 {
+		err := checkSessionHealth(fs, sessionID)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, "Error checking session health")
+		}
+	}
 
 	guest.LastPingTime = int(time.Now().Unix())
 	_, err = fs.Doc("sessions/"+c.Param("id")+"/guests/"+userId).Set(context.Background(), guest)
