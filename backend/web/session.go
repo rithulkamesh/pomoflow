@@ -71,7 +71,14 @@ func CheckSessionHealth(fs *firestore.Client, sessionID string) error {
 			if err != nil {
 				return fmt.Errorf("error deleting guest")
 			}
-			guests = append(guests[:i], guests[i+1:]...)
+
+			prevLength := len(guests)
+			guests = append(guests[:i-1], guests[i+1:]...)
+
+			if len(guests) == prevLength {
+				fmt.Printf("Guest not deleted, array length is %v", len(guests))
+			}
+
 		}
 	}
 
