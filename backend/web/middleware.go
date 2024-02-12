@@ -15,6 +15,8 @@ import (
 	"google.golang.org/api/option"
 )
 
+var LastGlobalHealthCheck int = 0
+
 func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
@@ -39,14 +41,14 @@ func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("firestore", firestore)
 		c.Set("auth", auth)
 
-		go checkGlobalHealth(firestore)
+		go checkGlobalHealth(firestore, LastGlobalHealthCheck)
 
 		return next(c)
 	}
 }
 
-func checkGlobalHealth(firestore *firestore.Client) {
-	if int(time.Now().Unix())-main.LastGlobalHealthCheck > 1800 {
+func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck int) {
+	if int(time.Now().Unix())-LastGlobalHealthCheck > 1800 {
 		LastGlobalHealthCheck = int(time.Now().Unix())
 
 		iter := firestore.Collection("sessions").Where("deleted", "==", false).Documents(context.Background())

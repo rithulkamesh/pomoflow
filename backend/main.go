@@ -16,8 +16,6 @@ import (
 	"github.com/rithulkamesh/pomoflow/web"
 )
 
-var LastGlobalHealthCheck int = 0
-
 func main() {
 	e := echo.New()
 
