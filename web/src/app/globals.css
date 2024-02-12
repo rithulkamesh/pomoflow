@@ -78,3 +78,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes rot-one {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rot-one {
+  animation: rot-one 500ms ease-in-out forwards;
+}

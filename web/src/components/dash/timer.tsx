@@ -71,6 +71,15 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
 }) => {
   const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
+  const [resetting, setResetting] = useState(false);
+
+  useEffect(() => {
+    if (resetting) {
+      setTimeout(() => {
+        setResetting(false);
+      }, 500);
+    }
+  }, [resetting]);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -142,15 +151,22 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
           disabled={actionsDisabled}
           onClickCapture={() => setPlayable(true)}
         >
-          {isRunning ? <IoPauseOutline /> : <IoPlayOutline />}
+          {isRunning ? (
+            <IoPauseOutline className='animate-in fade-in-0 zoom-in-0' />
+          ) : (
+            <IoPlayOutline className='animate-in fade-in-0 zoom-in-0' />
+          )}
         </Button>
         <Button
           variant='ghost'
           size='icon'
-          onClick={resetTimer}
+          onClick={() => {
+            setResetting(true);
+            resetTimer();
+          }}
           disabled={actionsDisabled}
         >
-          <IoRefreshOutline />
+          <IoRefreshOutline className={cn(resetting && 'rot-one')} />
         </Button>
         {handleMultiplayer && (
           <Button
