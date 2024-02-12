@@ -12,6 +12,7 @@ import NotionAvatar from '../NotionAvatar';
 import { useToast } from '../ui/use-toast';
 import { WithTooltip } from '../common/withTooltip';
 import { TooltipProvider } from '../ui/tooltip';
+import { usePomoSFX } from '@/hooks/usePomoSFX';
 
 interface Props {
   params: {
@@ -66,6 +67,7 @@ const SessionPage: React.FC<Props> = ({
 
   const dataRef = useRef(doc(db, 'sessions', params.id));
   const router = useRouter();
+  const [play] = usePomoSFX();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -117,6 +119,7 @@ const SessionPage: React.FC<Props> = ({
 
   const toggleTimer = () => {
     const now = Date.now();
+    play('click');
 
     if (!session.sessionStarted) {
       const newSession = {
@@ -209,6 +212,7 @@ const SessionPage: React.FC<Props> = ({
           handleTimerTypeChange={handleTimerTypeChange}
           actionsDisabled={!isHost}
           stopSession={stopSession}
+          playAudio={play}
         />
 
         <div className='flex items-center overflow-visible'>

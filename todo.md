@@ -1,4 +1,4 @@
-- [ ] Fix SFX by writing a usePomoSFX hook
+- [x] Fix SFX by writing a usePomoSFX hook
 - [ ] Add share link button
 - [ ] Implement leaving session
 - [ ] Implement cron job type of thing for checking if session is dead

@@ -44,6 +44,7 @@ interface PomodoroCardProps {
   updateTimer: (value: number, timerType: TimerType) => void;
   handleMultiplayer?: () => void;
   stopSession?: () => Promise<void>;
+  playAudio: (fx: 'timercomplete' | 'click') => void;
 }
 
 const PomodoroCard: React.FC<PomodoroCardProps> = ({
@@ -61,6 +62,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   resetTimer,
   handleMultiplayer,
   stopSession,
+  playAudio,
 }) => {
   const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
@@ -82,7 +84,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
     if (volume !== 0) {
       const timer = setTimeout(() => {
         document.querySelectorAll('audio').forEach((audio) => audio.pause());
-        if (playable) playAudio('/sfx/timercomplete.mp3', volume / 100);
+        if (playable) playAudio('timercomplete');
       }, 350);
 
       return () => clearTimeout(timer);
