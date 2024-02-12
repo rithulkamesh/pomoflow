@@ -67,7 +67,7 @@ const SessionPage: React.FC<Props> = ({
 
   const dataRef = useRef(doc(db, 'sessions', params.id));
   const router = useRouter();
-  const [play] = usePomoSFX();
+  const { play } = usePomoSFX();
   const { toast } = useToast();
 
   useEffect(() => {

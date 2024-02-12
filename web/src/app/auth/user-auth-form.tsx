@@ -76,7 +76,7 @@ export function UserAuthForm({
                 });
               })
               .catch((err) => {
-                console.error('Something went wrong with auth', err)
+                console.error('Something went wrong with auth', err);
 
                 toast({
                   title: 'Authentication Error',

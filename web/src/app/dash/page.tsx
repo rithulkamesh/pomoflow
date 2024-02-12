@@ -40,7 +40,7 @@ const Dash: React.FC = () => {
   );
   const [, setCurrentBreakType] = useState(TimerType.Pomodoro);
 
-  const [play] = usePomoSFX();
+  const { play } = usePomoSFX();
 
   const getTimeByType = (timerType: TimerType) => {
     const { pomodoroTime, shortBreakTime, longBreakTime } = userConfig;
