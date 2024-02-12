@@ -213,6 +213,16 @@ const SessionPage: React.FC<Props> = ({
           actionsDisabled={!isHost}
           stopSession={stopSession}
           playAudio={play}
+          copyLink={() => {
+            navigator.clipboard.writeText(
+              'https://pomoflow.rithul.dev/session/' + params.id
+            );
+            toast({
+              title: 'Link Copied!',
+              description:
+                'The session link has been copied to your clipboard.',
+            });
+          }}
         />
 
         <div className='flex items-center overflow-visible'>

@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 import {
   IoCloseOutline,
   IoCog,
+  IoLinkOutline,
   IoPauseOutline,
   IoPersonAddOutline,
   IoPlayOutline,
@@ -42,9 +43,10 @@ interface PomodoroCardProps {
   toggleTimer: () => void;
   handleTimerTypeChange: (timerType: TimerType) => void;
   updateTimer: (value: number, timerType: TimerType) => void;
+  playAudio: (fx: 'timercomplete' | 'click') => void;
   handleMultiplayer?: () => void;
   stopSession?: () => Promise<void>;
-  playAudio: (fx: 'timercomplete' | 'click') => void;
+  copyLink?: () => void;
 }
 
 const PomodoroCard: React.FC<PomodoroCardProps> = ({
@@ -63,6 +65,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   handleMultiplayer,
   stopSession,
   playAudio,
+  copyLink,
 }) => {
   const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
@@ -237,6 +240,12 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             </div>
           </PopoverContent>
         </Popover>
+        {copyLink && (
+          <Button variant='ghost' size='icon' onClick={copyLink}>
+            <IoLinkOutline />
+          </Button>
+        )}
+
         {!actionsDisabled && stopSession && (
           <div className='flex items-center gap-2 flex-col'>
             {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
