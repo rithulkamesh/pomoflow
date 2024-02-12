@@ -19,6 +19,8 @@ import (
 func main() {
 	e := echo.New()
 
+	web.GetFirebase() // To fail if it can't connect to firebase
+
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowHeaders: []string{"Authorization", "content-type"},
 		AllowOrigins: []string{"*"},

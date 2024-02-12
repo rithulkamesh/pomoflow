@@ -8,3 +8,7 @@
   1. Checks all the guests of the session
   2. If it's been more than 10 seconds since the last ping of any of the users, it deletes them
   3. If there are no users left, it deletes the session
+
+## Bugs
+
+- [ ] Guest collection is not deleted when uhhhh session is checked

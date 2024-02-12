@@ -5,27 +5,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"cloud.google.com/go/firestore"
-	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
 	"github.com/labstack/echo/v4"
-	"google.golang.org/api/option"
 )
 
-var LastGlobalHealthCheck int = 0
+var LastGlobalHealthCheck int
 
 func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
 		ctx := context.Background()
-		app, err := InitFirebase()
 
-		if err != nil {
-			log.Fatalf("Error initializing Firebase app: %v", err)
-		}
+		app := GetFirebase()
 
 		firestore, err := app.Firestore(ctx)
 		if err != nil {
@@ -41,15 +34,20 @@ func FirestoreMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("firestore", firestore)
 		c.Set("auth", auth)
 
-		go checkGlobalHealth(firestore, LastGlobalHealthCheck)
+		fmt.Println("Current last global health", LastGlobalHealthCheck)
+
+		go checkGlobalHealth(firestore, &LastGlobalHealthCheck)
 
 		return next(c)
 	}
 }
 
-func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck int) {
-	if int(time.Now().Unix())-LastGlobalHealthCheck > 1800 {
-		LastGlobalHealthCheck = int(time.Now().Unix())
+func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck *int) {
+	fmt.Println("Starting check global health")
+
+	if int(time.Now().Unix())-*LastGlobalHealthCheck > 1800 {
+		fmt.Println("Checking health - enough time passed since last check")
+		*LastGlobalHealthCheck = int(time.Now().Unix())
 
 		iter := firestore.Collection("sessions").Where("deleted", "==", false).Documents(context.Background())
 		for {
@@ -62,42 +60,24 @@ func checkGlobalHealth(firestore *firestore.Client, LastGlobalHealthCheck int) {
 			CheckSessionHealth(firestore, session.ID)
 		}
 
-		iter = firestore.Collection("sessions").Where("deleted", "==", true).Documents(context.Background())
-		for {
-			doc, err := iter.Next()
-			if err != nil {
-				break
-			}
-			var session Session
-			doc.DataTo(&session)
+		fmt.Println("Iterated through sessions and checked health. Exiting.")
 
-			_, err = firestore.Doc("sessions/" + session.ID).Delete(context.Background())
-			if err != nil {
-				log.Println("Error deleting session")
-			}
-
-		}
+		// iter = firestore.Collection("sessions").Where("deleted", "==", true).Documents(context.Background())
+		// for {
+		// 	doc, err := iter.Next()
+		// 	if err != nil {
+		// 		break
+		// 	}
+		// 	var session Session
+		// 	doc.DataTo(&session)
+		//
+		// 	_, err = firestore.Doc("sessions/" + session.ID).Delete(context.Background())
+		// 	if err != nil {
+		// 		log.Println("Error deleting session")
+		// 	}
+		//
+		// }
 	}
-}
-
-func InitFirebase() (*firebase.App, error) {
-	ctx := context.Background()
-
-	location, exists := os.LookupEnv("FIRESTORE_SERVICE_ACCOUNT_PATH")
-
-	if !exists {
-		log.Fatalf("FIRESTORE_SERVICE_ACCOUNT_PATH not set in environment. \n")
-		return nil, fmt.Errorf("FIRESTORE_SERVICE_ACCOUNT_PATH not set in environment. \n")
-	}
-
-	opt := option.WithCredentialsFile(location)
-
-	app, err := firebase.NewApp(ctx, nil, opt)
-	if err != nil {
-		log.Fatalf("Error initializing Firebase app: %v", err)
-	}
-
-	return app, nil
 }
 
 func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
