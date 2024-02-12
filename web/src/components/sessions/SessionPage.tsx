@@ -2,6 +2,7 @@
 'use client';
 
 import Timer, { TimerType } from '@/components/dash/timer';
+import { usePomoSFX } from '@/hooks/usePomoSFX';
 import { db } from '@/lib/firebase';
 import { calculateTimeRemaining, getTimeByType } from '@/lib/time';
 import { camelize } from '@/lib/utils';
@@ -9,10 +10,9 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import NotionAvatar from '../NotionAvatar';
-import { useToast } from '../ui/use-toast';
 import { WithTooltip } from '../common/withTooltip';
 import { TooltipProvider } from '../ui/tooltip';
-import { usePomoSFX } from '@/hooks/usePomoSFX';
+import { useToast } from '../ui/use-toast';
 
 interface Props {
   params: {
@@ -213,8 +213,9 @@ const SessionPage: React.FC<Props> = ({
           actionsDisabled={!isHost}
           stopSession={stopSession}
           playAudio={play}
+          isHost={isHost}
           copyLink={() => {
-            navigator.clipboard.writeText(
+            void navigator.clipboard.writeText(
               'https://pomoflow.rithul.dev/session/' + params.id
             );
             toast({

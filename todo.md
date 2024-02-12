@@ -1,6 +1,6 @@
 - [x] Fix SFX by writing a usePomoSFX hook
 - [x] Add share link button
-- [ ] Implement leaving session
+- [x] Implement leaving session
 - [ ] Implement cron job type of thing for checking if session is dead
   - [x] When someone pings, if it's been more than 30 seconds since you last checked the "health" of the session, run checkSessionHealth
   - [ ] Literaly cron job, every 1 hour get all of the sessions not marked as deleted, and check their health

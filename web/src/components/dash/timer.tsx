@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { volumeAtom } from '@/lib/atoms';
-import { cn, playAudio } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import {
@@ -47,6 +47,7 @@ interface PomodoroCardProps {
   handleMultiplayer?: () => void;
   stopSession?: () => Promise<void>;
   copyLink?: () => void;
+  isHost?: boolean;
 }
 
 const PomodoroCard: React.FC<PomodoroCardProps> = ({
@@ -66,6 +67,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   stopSession,
   playAudio,
   copyLink,
+  isHost,
 }) => {
   const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
@@ -242,15 +244,15 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
         </Popover>
         {copyLink && (
           <Button variant='ghost' size='icon' onClick={copyLink}>
-            <IoLinkOutline />
+            <IoLinkOutline className='rotate-[-35deg]' />
           </Button>
         )}
 
-        {!actionsDisabled && stopSession && (
+        {stopSession && (
           <div className='flex items-center gap-2 flex-col'>
             {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-            <StopSessionDialog stopSession={stopSession}>
-              <Button variant='ghost' size='icon' disabled={actionsDisabled}>
+            <StopSessionDialog stopSession={stopSession} leave={!isHost}>
+              <Button variant='ghost' size='icon'>
                 <IoCloseOutline />
               </Button>
             </StopSessionDialog>

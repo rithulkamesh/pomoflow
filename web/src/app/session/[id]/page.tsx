@@ -97,19 +97,41 @@ export default function Page({ params }: Props) {
   const stopSession = async () => {
     const token = await auth.currentUser?.getIdToken();
 
+    if (isHost) {
+      await axios({
+        url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}`,
+        method: 'DELETE',
+        headers: {
+          Authorization: token,
+        },
+      })
+        .then(() => {
+          router.push('/dash');
+          toast({
+            title: 'Session Deleted!',
+            description: 'The session has been stopped successfully.',
+          });
+        })
+        .catch((err) => {
+          toast({
+            title: 'Error',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            description: err.message as string,
+            variant: 'destructive',
+          });
+        });
+      return;
+    }
+
     await axios({
-      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}`,
-      method: 'DELETE',
+      url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}/leave`,
+      method: 'POST',
       headers: {
         Authorization: token,
       },
     })
       .then(() => {
         router.push('/dash');
-        toast({
-          title: 'Session Deleted!',
-          description: 'The session has been stopped successfully.',
-        });
       })
       .catch((err) => {
         toast({

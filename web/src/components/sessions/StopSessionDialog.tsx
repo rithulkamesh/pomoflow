@@ -15,11 +15,13 @@ import { useToast } from '../ui/use-toast';
 interface StopSessionDialogProps {
   stopSession: () => Promise<void>;
   children: React.ReactNode;
+  leave?: boolean;
 }
 
 export const StopSessionDialog: React.FC<StopSessionDialogProps> = ({
   stopSession,
   children,
+  leave,
 }) => {
   const { toast } = useToast();
   const [confirmed, setConfirmed] = useState<boolean>(false);
@@ -29,9 +31,11 @@ export const StopSessionDialog: React.FC<StopSessionDialogProps> = ({
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Stop this session?</DialogTitle>
+          <DialogTitle>
+            {leave ? 'Leave the session' : 'Stop this session?'}
+          </DialogTitle>
           <DialogDescription>
-            Are you sure you want to stop this session?
+            Are you sure you want to {leave ? 'leave' : 'stop'} this session?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -53,7 +57,7 @@ export const StopSessionDialog: React.FC<StopSessionDialogProps> = ({
               });
             }}
           >
-            Stop
+            {leave ? 'Leave' : 'Stop'}
           </Button>
         </DialogFooter>
       </DialogContent>
