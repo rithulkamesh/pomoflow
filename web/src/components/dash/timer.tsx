@@ -15,7 +15,6 @@ import React, { useEffect, useState } from 'react';
 import {
   IoCloseOutline,
   IoCog,
-  IoLinkOutline,
   IoPauseOutline,
   IoPersonAddOutline,
   IoPlayOutline,
@@ -23,6 +22,7 @@ import {
 } from 'react-icons/io5';
 import { StopSessionDialog } from '../sessions/StopSessionDialog';
 import ThemeSwitcher from '../theme/theme-switcher';
+import { CopyButton } from '../common/copyButton';
 
 export enum TimerType {
   Pomodoro = 'Pomodoro',
@@ -46,7 +46,7 @@ interface PomodoroCardProps {
   playAudio: (fx: 'timercomplete' | 'click') => void;
   handleMultiplayer?: () => void;
   stopSession?: () => Promise<void>;
-  copyLink?: () => void;
+  copyLink?: string;
   isHost?: boolean;
 }
 
@@ -242,11 +242,8 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             </div>
           </PopoverContent>
         </Popover>
-        {copyLink && (
-          <Button variant='ghost' size='icon' onClick={copyLink}>
-            <IoLinkOutline className='rotate-[-35deg]' />
-          </Button>
-        )}
+
+        {copyLink && <CopyButton link={copyLink} />}
 
         {stopSession && (
           <div className='flex items-center gap-2 flex-col'>
