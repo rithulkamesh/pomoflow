@@ -145,7 +145,16 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
         >
           <IoRefreshOutline />
         </Button>
-
+        {handleMultiplayer && (
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={handleMultiplayer}
+            disabled={actionsDisabled}
+          >
+            <IoPersonAddOutline />
+          </Button>
+        )}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant='ghost' size='icon' disabled={actionsDisabled}>
@@ -235,16 +244,6 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
               </Button>
             </StopSessionDialog>
           </div>
-        )}
-        {handleMultiplayer && (
-          <Button
-            variant='ghost'
-            size='icon'
-            onClick={handleMultiplayer}
-            disabled={actionsDisabled}
-          >
-            <IoPersonAddOutline />
-          </Button>
         )}
       </div>
     </Card>
