@@ -25,10 +25,10 @@ export const usePomoSFX = () => {
     audios.current.click.volume = volume / 100;
   }, [volume]);
 
-  const play = async (sfx: 'click' | 'timercomplete') => {
+  const play = (sfx: 'click' | 'timercomplete') => {
     const audio = new Audio(`/sfx/${sfx}.mp3`);
     audio.volume = volume / 100;
-    await audio.play();
+    void audio.play();
   };
 
   return { play };

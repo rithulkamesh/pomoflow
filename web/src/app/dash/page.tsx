@@ -62,13 +62,7 @@ const Dash: React.FC = () => {
   };
 
   const toggleTimer = () => {
-    play('click').catch((e) => {
-      toast({
-        title: 'Error',
-        description: e.message as string,
-        variant: 'destructive',
-      });
-    });
+    play('click');
     if (timeRemaining > 0) {
       setIsRunning((prevState) => !prevState);
     }
