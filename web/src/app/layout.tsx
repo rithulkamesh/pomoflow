@@ -1,15 +1,6 @@
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 import "./globals.css";
-
-const poppins = Poppins({ subsets: ["latin"], weight: ["100", "400", "700"] });
-
-export const metadata: Metadata = {
-  title: "Pomoflow",
-  description: "Work in collaboration!",
-};
 
 export default function RootLayout({
   children,
@@ -18,7 +9,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={poppins.className}>
+      <body>
         <ThemeProvider attribute="class" defaultTheme="dark">
           {children}
           <Toaster />
