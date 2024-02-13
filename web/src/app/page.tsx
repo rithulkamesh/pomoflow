@@ -17,6 +17,9 @@ export default function Home() {
           width={128}
           height={128}
         />
+        <div className="px-2 py-0.5 rounded-full text-pomo bg-transparent border-2 border-pomo text-[0.6rem]">
+          Beta
+        </div>
 
         <h1 className="text-5xl font-medium">Pomoflow</h1>
         <p className="">Stay in focus. Together.</p>
