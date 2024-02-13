@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { volumeAtom } from "@/lib/atoms";
 import { cn } from "@/lib/utils";
 import { useAtom } from "jotai";
+import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
 import {
   IoCloseOutline,
@@ -20,9 +21,15 @@ import {
   IoPlayOutline,
   IoRefreshOutline,
 } from "react-icons/io5";
-import { StopSessionDialog } from "../sessions/StopSessionDialog";
-import ThemeSwitcher from "../theme/theme-switcher";
 import { CopyButton } from "../common/copyButton";
+import { StopSessionDialog } from "../sessions/StopSessionDialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export enum TimerType {
   Pomodoro = "Pomodoro",
@@ -72,6 +79,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   const [playable, setPlayable] = useState(false);
   const [volume, setVolume] = useAtom(volumeAtom);
   const [resetting, setResetting] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (resetting) {
@@ -107,7 +115,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   }, [volume]);
 
   return (
-    <Card className="py-5 px-14 flex flex-col gap-4 border-0 animate-in fade-in-0">
+    <Card className="py-5 px-14 flex flex-col gap-5 border-0 animate-in fade-in-0">
       <div className="flex gap-2 justify-center">
         {Object.values(TimerType).map((type) => (
           <Button
@@ -127,9 +135,9 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
 
       <div className="py-0.5" />
 
-      <p className="text-center text-6xl font-extralight flex items-center justify-center">
+      <h1 className="text-center text-6xl font-regular flex items-center justify-center">
         {formatTime(timeRemaining)}
-      </p>
+      </h1>
       <div className="flex items-center justify-center">
         {[1, 2, 3, 4].map((dot) => (
           <div
@@ -181,14 +189,14 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80">
-            <div className="grid gap-4">
+            <div className="grid gap-6">
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Settings</h4>
                 <p className="text-sm text-muted-foreground">
                   Adjust clock settings for optimum productivity (in minutes)
                 </p>
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-2.5">
                 <div className="grid grid-cols-3 items-center gap-4">
                   <Label htmlFor="pomodoro">Pomodoro</Label>
                   <Input
@@ -234,6 +242,27 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
                     }
                   />
                 </div>
+                <div className="grid grid-cols-3 gap-5 items-center">
+                  <Label htmlFor="theme">Theme</Label>
+                  <Select
+                    onValueChange={(e) => {
+                      setTheme(e);
+                    }}
+                    value={theme}>
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue
+                        placeholder={
+                          theme &&
+                          theme.slice(0, 1).toUpperCase() + theme.slice(1)
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">Light</SelectItem>
+                      <SelectItem value="dark">Dark</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-3 gap-5">
                   <Label htmlFor="volume">Volume</Label>
                   <Slider
@@ -241,14 +270,8 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
                     max={100}
                     step={1}
                     onValueChange={handleVolumeChange}
+                    className="col-span-2"
                   />
-                  <span className="text-sm text-muted-foreground">
-                    {volume}%
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-5 justify-center items-center">
-                  <Label htmlFor="theme">Theme</Label>
-                  <ThemeSwitcher />
                 </div>
               </div>
             </div>
