@@ -11,14 +11,15 @@ export default function Home() {
       className="w-full min-h-screen flex items-center justify-center flex-col group">
       <div className="flex gap-2 items-center flex-col">
         <Image
-          className="group-active:rotate-12 transition-transform"
+          className="group-active:rotate-12 transition-transform animate-in fade-in-0 zoom-in-0"
           src="/pomoflow-logo.svg"
           alt="hi there"
           width={128}
           height={128}
         />
 
-        <h1 className="text-4xl font-medium">Pomoflow</h1>
+        <h1 className="text-5xl font-medium">Pomoflow</h1>
+        <p className="">Stay in focus. Together.</p>
       </div>
 
       <div className="mt-8">
