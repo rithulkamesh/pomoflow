@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
-'use client';
+"use client";
 
-import Timer, { TimerType } from '@/components/dash/timer';
-import { usePomoSFX } from '@/hooks/usePomoSFX';
-import { db } from '@/lib/firebase';
-import { calculateTimeRemaining, getTimeByType } from '@/lib/time';
-import { camelize } from '@/lib/utils';
-import { doc, updateDoc } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
-import NotionAvatar from '../NotionAvatar';
-import { WithTooltip } from '../common/withTooltip';
-import { TooltipProvider } from '../ui/tooltip';
-import { useToast } from '../ui/use-toast';
+import Timer, { TimerType } from "@/components/dash/timer";
+import { usePomoSFX } from "@/hooks/usePomoSFX";
+import { db } from "@/lib/firebase";
+import { calculateTimeRemaining, getTimeByType } from "@/lib/time";
+import { camelize } from "@/lib/utils";
+import { doc, updateDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
+import NotionAvatar from "../NotionAvatar";
+import { WithTooltip } from "../common/withTooltip";
+import { TooltipProvider } from "../ui/tooltip";
+import { useToast } from "../ui/use-toast";
 
 interface Props {
   params: {
@@ -65,7 +65,7 @@ const SessionPage: React.FC<Props> = ({
     calculateTimeRemaining(session) ?? 0
   );
 
-  const dataRef = useRef(doc(db, 'sessions', params.id));
+  const dataRef = useRef(doc(db, "sessions", params.id));
   const router = useRouter();
   const { play } = usePomoSFX();
   const { toast } = useToast();
@@ -74,10 +74,10 @@ const SessionPage: React.FC<Props> = ({
     sessionRef.current = session;
 
     if (session.deleted) {
-      router.push('/dash');
+      router.push("/dash");
       toast({
-        title: 'Session has been closed.',
-        description: 'The session you were in has been stopped by the host.',
+        title: "Session has been closed.",
+        description: "The session you were in has been stopped by the host.",
       });
     }
   }, [session, router, toast]);
@@ -119,7 +119,7 @@ const SessionPage: React.FC<Props> = ({
 
   const toggleTimer = () => {
     const now = Date.now();
-    play('click');
+    play("click");
 
     if (!session.sessionStarted) {
       const newSession = {
@@ -171,7 +171,7 @@ const SessionPage: React.FC<Props> = ({
   const updateTimer = (value: number, timerType: TimerType) => {
     const newSession = {
       ...session,
-      [camelize(timerType) + 'Time']: value,
+      [camelize(timerType) + "Time"]: value,
     };
 
     setSession(newSession);
@@ -197,7 +197,7 @@ const SessionPage: React.FC<Props> = ({
 
   return (
     <TooltipProvider>
-      <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
+      <main className="flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]">
         <Timer
           timerType={session.timerType as TimerType}
           isRunning={!!session.isRunning}
@@ -217,7 +217,7 @@ const SessionPage: React.FC<Props> = ({
           copyLink={params.id}
         />
 
-        <div className='flex items-center overflow-visible'>
+        <div className="flex items-center overflow-visible">
           {guests.length >= 1 &&
             guests
               .slice(0, 10)
@@ -225,11 +225,10 @@ const SessionPage: React.FC<Props> = ({
               .map((guest, index) => (
                 <div
                   key={index}
-                  className='flex items-center gap-3 -mr-4 overflow-visible'
-                >
+                  className="flex items-center gap-3 -mr-4 overflow-visible">
                   <WithTooltip text={guest.name}>
                     <NotionAvatar
-                      className='border rounded-full cursor-pointer hover:scale-[1.2] transition-all'
+                      className="border rounded-full cursor-pointer hover:scale-[1.2] transition-all"
                       name={guest.name}
                     />
                   </WithTooltip>

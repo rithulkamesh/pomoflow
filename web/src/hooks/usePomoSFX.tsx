@@ -1,6 +1,6 @@
-import { volumeAtom } from '@/lib/atoms';
-import { useAtom } from 'jotai';
-import { useEffect, useRef } from 'react';
+import { volumeAtom } from "@/lib/atoms";
+import { useAtom } from "jotai";
+import { useEffect, useRef } from "react";
 
 export const usePomoSFX = () => {
   const [volume] = useAtom(volumeAtom);
@@ -12,11 +12,11 @@ export const usePomoSFX = () => {
 
   useEffect(() => {
     if (!audios.current) {
-      const complete = new Audio('/sfx/timercomplete.mp3');
-      const click = new Audio('/sfx/click.mp3');
+      const complete = new Audio("/sfx/timercomplete.mp3");
+      const click = new Audio("/sfx/click.mp3");
       [complete, click].forEach((audio) => {
         audio.load();
-        audio.preload = 'auto';
+        audio.preload = "auto";
       });
       audios.current = { complete, click };
     }
@@ -25,7 +25,7 @@ export const usePomoSFX = () => {
     audios.current.click.volume = volume / 100;
   }, [volume]);
 
-  const play = (sfx: 'click' | 'timercomplete') => {
+  const play = (sfx: "click" | "timercomplete") => {
     const audio = new Audio(`/sfx/${sfx}.mp3`);
     audio.volume = volume / 100;
     void audio.play();

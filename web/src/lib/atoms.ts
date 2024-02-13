@@ -1,3 +1,3 @@
-import { atomWithStorage } from 'jotai/utils';
+import { atomWithStorage } from "jotai/utils";
 
-export const volumeAtom = atomWithStorage('@pomotimer/volume', 33);
+export const volumeAtom = atomWithStorage("@pomotimer/volume", 33);

@@ -7,10 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { useState } from 'react';
-import { Button } from '../ui/button';
-import { useToast } from '../ui/use-toast';
+} from "@/components/ui/dialog";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import { useToast } from "../ui/use-toast";
 
 interface StopSessionDialogProps {
   stopSession: () => Promise<void>;
@@ -32,15 +32,15 @@ export const StopSessionDialog: React.FC<StopSessionDialogProps> = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {leave ? 'Leave the session' : 'Stop this session?'}
+            {leave ? "Leave the session" : "Stop this session?"}
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to {leave ? 'leave' : 'stop'} this session?
+            Are you sure you want to {leave ? "leave" : "stop"} this session?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <DialogClose>
-            <Button variant={'ghost'} disabled={confirmed}>
+            <Button variant={"ghost"} disabled={confirmed}>
               Cancel
             </Button>
           </DialogClose>
@@ -51,13 +51,12 @@ export const StopSessionDialog: React.FC<StopSessionDialogProps> = ({
               setConfirmed(true);
               stopSession().catch(() => {
                 toast({
-                  title: 'Error',
-                  description: 'Failed to stop session',
+                  title: "Error",
+                  description: "Failed to stop session",
                 });
               });
-            }}
-          >
-            {leave ? 'Leave' : 'Stop'}
+            }}>
+            {leave ? "Leave" : "Stop"}
           </Button>
         </DialogFooter>
       </DialogContent>

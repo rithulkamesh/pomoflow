@@ -1,5 +1,5 @@
-import { TimerType } from '@/components/dash/timer';
-import { SessionDoc } from '@/components/sessions/SessionPage';
+import { TimerType } from "@/components/dash/timer";
+import { SessionDoc } from "@/components/sessions/SessionPage";
 
 export const getTimeByType = (
   timerType: TimerType,

@@ -1,38 +1,38 @@
-import { Button } from '@/components/ui/button';
-import { auth } from '@/lib/firebase';
-import { signOut } from 'firebase/auth';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import React from 'react';
-import NotionAvatar from '../NotionAvatar';
+import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React from "react";
+import NotionAvatar from "../NotionAvatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { useToast } from '../ui/use-toast';
+} from "../ui/dropdown-menu";
+import { useToast } from "../ui/use-toast";
 
 const Header: React.FC = () => {
   const router = useRouter();
   const { toast } = useToast();
 
   return (
-    <div className='flex justify-between items-center h-12 w-screen px-5 my-2'>
+    <div className="flex justify-between items-center h-12 w-screen px-5 my-2">
       <Image
-        src={'/pomoflow-logo.svg'}
+        src={"/pomoflow-logo.svg"}
         width={50}
         height={50}
-        alt='pomoflow logo'
+        alt="pomoflow logo"
       />
       <DropdownMenu>
         <DropdownMenuTrigger>
           <NotionAvatar name={auth.currentUser!.displayName!} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent className='ml-2 mt-1 p-0'>
+        <DropdownMenuContent className="ml-2 mt-1 p-0">
           <DropdownMenuLabel>
             <Button
-              variant='link'
+              variant="link"
               onClick={() => {
                 void signOut(auth)
                   .catch((e) => {
@@ -43,14 +43,13 @@ const Header: React.FC = () => {
                     }
 
                     toast({
-                      title: 'Error',
+                      title: "Error",
                       description: message,
-                      variant: 'destructive',
+                      variant: "destructive",
                     });
                   })
-                  .then(() => router.push('/'));
-              }}
-            >
+                  .then(() => router.push("/"));
+              }}>
               Log out
             </Button>
           </DropdownMenuLabel>

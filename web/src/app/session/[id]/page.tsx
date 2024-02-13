@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { TimerLoading } from '@/components/dash/timerLoading';
+import { TimerLoading } from "@/components/dash/timerLoading";
 import SessionPage, {
   SessionDoc,
   SessionGuests,
-} from '@/components/sessions/SessionPage';
-import { useToast } from '@/components/ui/use-toast';
-import { auth, db } from '@/lib/firebase';
-import axios from 'axios';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+} from "@/components/sessions/SessionPage";
+import { useToast } from "@/components/ui/use-toast";
+import { auth, db } from "@/lib/firebase";
+import axios from "axios";
+import { collection, doc, onSnapshot } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Props {
   params: {
@@ -29,18 +29,18 @@ export default function Page({ params }: Props) {
   useEffect(() => {
     setLoading(true);
 
-    const ref = doc(db, 'sessions', params.id);
+    const ref = doc(db, "sessions", params.id);
     const unsubscribe = onSnapshot(ref, (ss) => {
       setLoading(false);
 
       const data = ss.data();
-      if (!data) return router.push('/dash');
+      if (!data) return router.push("/dash");
       if (data.deleted) {
         toast({
-          title: 'Session Deleted!',
-          description: 'The session was stopped by the host.',
+          title: "Session Deleted!",
+          description: "The session was stopped by the host.",
         });
-        return router.push('/dash');
+        return router.push("/dash");
       }
       data.hostId === auth.currentUser?.uid && setIsHost(true);
 
@@ -49,16 +49,16 @@ export default function Page({ params }: Props) {
         const token = await auth.currentUser?.getIdToken();
         axios({
           url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}/join`,
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: token,
           },
         }).catch((err) => {
           toast({
-            title: 'Error',
+            title: "Error",
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             description: err.message as string,
-            variant: 'destructive',
+            variant: "destructive",
           });
           setLoading(false);
         });
@@ -68,7 +68,7 @@ export default function Page({ params }: Props) {
       setLoading(false);
     });
 
-    const unsubGuests = onSnapshot(collection(ref, 'guests'), (ss) => {
+    const unsubGuests = onSnapshot(collection(ref, "guests"), (ss) => {
       if (ss.empty) return setGuests([]);
 
       let data = ss.docs.map((doc) => ({
@@ -81,7 +81,7 @@ export default function Page({ params }: Props) {
           Math.floor(new Date().getTime() / 1000 - guest.lastPingTime) < 12
       );
 
-      console.log('setting guests', data);
+      console.log("setting guests", data);
 
       setGuests(data);
     });
@@ -100,24 +100,24 @@ export default function Page({ params }: Props) {
     if (isHost) {
       await axios({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}`,
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
           Authorization: token,
         },
       })
         .then(() => {
-          router.push('/dash');
+          router.push("/dash");
           toast({
-            title: 'Session Deleted!',
-            description: 'The session has been stopped successfully.',
+            title: "Session Deleted!",
+            description: "The session has been stopped successfully.",
           });
         })
         .catch((err) => {
           toast({
-            title: 'Error',
+            title: "Error",
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             description: err.message as string,
-            variant: 'destructive',
+            variant: "destructive",
           });
         });
       return;
@@ -125,20 +125,20 @@ export default function Page({ params }: Props) {
 
     await axios({
       url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}/leave`,
-      method: 'POST',
+      method: "POST",
       headers: {
         Authorization: token,
       },
     })
       .then(() => {
-        router.push('/dash');
+        router.push("/dash");
       })
       .catch((err) => {
         toast({
-          title: 'Error',
+          title: "Error",
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           description: err.message as string,
-          variant: 'destructive',
+          variant: "destructive",
         });
       });
   };
@@ -150,7 +150,7 @@ export default function Page({ params }: Props) {
 
       await axios({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${params.id}/ping`,
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: token,
         },
@@ -162,7 +162,7 @@ export default function Page({ params }: Props) {
 
   if (!session || loading)
     return (
-      <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
+      <main className="flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]">
         <TimerLoading />
       </main>
     );

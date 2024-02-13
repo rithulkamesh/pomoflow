@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-'use client';
+"use client";
 
-import Timer, { TimerType } from '@/components/dash/timer';
-import { TimerLoading } from '@/components/dash/timerLoading';
-import { useToast } from '@/components/ui/use-toast';
-import { usePomoSFX } from '@/hooks/usePomoSFX';
-import { volumeAtom } from '@/lib/atoms';
-import { auth, db } from '@/lib/firebase';
-import { camelize, playAudio } from '@/lib/utils';
-import axios from 'axios';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { useAtom } from 'jotai';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import Timer, { TimerType } from "@/components/dash/timer";
+import { TimerLoading } from "@/components/dash/timerLoading";
+import { useToast } from "@/components/ui/use-toast";
+import { usePomoSFX } from "@/hooks/usePomoSFX";
+import { volumeAtom } from "@/lib/atoms";
+import { auth, db } from "@/lib/firebase";
+import { camelize, playAudio } from "@/lib/utils";
+import axios from "axios";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { useAtom } from "jotai";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export interface UserConfig {
   id: string;
@@ -26,7 +26,7 @@ const Dash: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [userConfig, setUserConfig] = useState<UserConfig>({
-    id: '',
+    id: "",
     pomodoroTime: 25,
     shortBreakTime: 5,
     longBreakTime: 15,
@@ -62,7 +62,7 @@ const Dash: React.FC = () => {
   };
 
   const toggleTimer = () => {
-    play('click');
+    play("click");
     if (timeRemaining > 0) {
       setIsRunning((prevState) => !prevState);
     }
@@ -77,16 +77,16 @@ const Dash: React.FC = () => {
   const updateTimer = (newTime: number, type: TimerType) => {
     if (!auth.currentUser?.uid) return;
 
-    const ref = doc(db, 'users', auth.currentUser.uid);
-    setUserConfig({ ...userConfig, [type + 'Time']: newTime });
+    const ref = doc(db, "users", auth.currentUser.uid);
+    setUserConfig({ ...userConfig, [type + "Time"]: newTime });
     void updateDoc(ref, {
-      [camelize(type.replace(/ /g, '')) + 'Time']: newTime,
+      [camelize(type.replace(/ /g, "")) + "Time"]: newTime,
     });
   };
 
   useEffect(() => {
     if (!auth.currentUser?.uid) return;
-    const ref = doc(db, 'users', auth.currentUser.uid);
+    const ref = doc(db, "users", auth.currentUser.uid);
 
     const unsubscribe = onSnapshot(
       ref,
@@ -98,9 +98,9 @@ const Dash: React.FC = () => {
       },
       (error) => {
         toast({
-          title: 'Error',
+          title: "Error",
           description: error.message,
-          variant: 'destructive',
+          variant: "destructive",
         });
       }
     );
@@ -114,7 +114,7 @@ const Dash: React.FC = () => {
     if (isRunning) {
       if (timeRemaining <= 0) {
         setIsRunning(false);
-        playAudio('/sfx/timercomplete.mp3', volume / 100);
+        playAudio("/sfx/timercomplete.mp3", volume / 100);
 
         if (timerType === TimerType.Pomodoro) {
           setCompletedSessions((prevSessions) => prevSessions + 1);
@@ -159,7 +159,7 @@ const Dash: React.FC = () => {
       const token = await auth.currentUser?.getIdToken();
       axios({
         url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/`,
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: token,
         },
@@ -175,10 +175,10 @@ const Dash: React.FC = () => {
         })
         .catch((err) => {
           toast({
-            title: 'Error',
+            title: "Error",
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             description: err.message as string,
-            variant: 'destructive',
+            variant: "destructive",
           });
           setLoading(false);
         });
@@ -188,12 +188,12 @@ const Dash: React.FC = () => {
 
   if (loading)
     return (
-      <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
+      <main className="flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]">
         <TimerLoading />
       </main>
     );
   return (
-    <main className='flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]'>
+    <main className="flex flex-col items-center justify-center p-24 gap-6 w-screen h-[calc(100vh-10rem)]">
       <Timer
         timerType={timerType}
         isRunning={isRunning}
