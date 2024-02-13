@@ -16,7 +16,7 @@ const Page: React.FC = () => {
         <Button
           variant="link"
           className="mt-4"
-          onClick={() => router.push("/dash")}>
+          onClick={() => router.push("/")}>
           <div className="flex gap-1 items-center justify-center text-center">
             <IoArrowBackOutline />
             Go Home
