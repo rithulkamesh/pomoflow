@@ -19,12 +19,18 @@ const Header: React.FC = () => {
 
   return (
     <div className="flex justify-between items-center h-12 w-screen px-5 my-2">
-      <Image
-        src={"/pomoflow-logo.svg"}
-        width={50}
-        height={50}
-        alt="pomoflow logo"
-      />
+      <div className="flex items-center gap-2">
+        <Image
+          src={"/pomoflow-logo.svg"}
+          width={50}
+          height={50}
+          alt="pomoflow logo"
+        />
+
+        <div className="px-2 py-0.5 rounded-full text-black bg-pomo text-[0.6rem]">
+          Beta
+        </div>
+      </div>
       <DropdownMenu>
         <DropdownMenuTrigger>
           <NotionAvatar name={auth.currentUser!.displayName!} />
