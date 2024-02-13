@@ -1,8 +1,8 @@
+import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 import { IoCheckmark, IoLinkOutline } from 'react-icons/io5';
 import { Button } from '../ui/button';
 import { useToast } from '../ui/use-toast';
-import { useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
 
 interface CopyButtonProps {
   link: string;

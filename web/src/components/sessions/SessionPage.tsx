@@ -214,7 +214,7 @@ const SessionPage: React.FC<Props> = ({
           stopSession={stopSession}
           playAudio={play}
           isHost={isHost}
-          copyLink={`/session/${params.id}`}
+          copyLink={params.id}
         />
 
         <div className='flex items-center overflow-visible'>
