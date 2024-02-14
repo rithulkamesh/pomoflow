@@ -30,7 +30,7 @@ export const TimerLoading = () => (
       ))}
     </div>
     <div className="flex gap-1 justify-center">
-      <Button variant="ghost" size="icon">
+      <Button variant="ghost" size="icon" disabled={true}>
         <IoPlayOutline />
       </Button>
       <Button variant="ghost" size="icon" disabled={true}>
