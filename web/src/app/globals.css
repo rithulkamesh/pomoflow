@@ -82,6 +82,9 @@
       @apply bg-background text-foreground;
       font-family: 'IBM Plex Sans', sans-serif;
     }
+    .max-w-container {
+      max-width: 43rem;
+    }
   }
 
   @keyframes rot-one {
