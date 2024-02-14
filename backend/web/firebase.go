@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"os"
@@ -27,14 +28,13 @@ func GetFirebase() *firebase.App {
 func InitFirebase() (*firebase.App, error) {
 	ctx := context.Background()
 
-	location, exists := os.LookupEnv("FIRESTORE_SERVICE_ACCOUNT_PATH")
-
-	if !exists {
-		log.Fatalf("FIRESTORE_SERVICE_ACCOUNT_PATH not set in environment. \n")
-		return nil, fmt.Errorf("FIRESTORE_SERVICE_ACCOUNT_PATH not set in environment. \n")
+	secret, err := getJsonSecret()
+	if err != nil {
+		fmt.Println("Error getting secret", err)
+		return nil, err
 	}
 
-	opt := option.WithCredentialsFile(location)
+	opt := option.WithCredentialsJSON(secret)
 
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
@@ -42,4 +42,26 @@ func InitFirebase() (*firebase.App, error) {
 	}
 
 	return app, nil
+}
+
+func getJsonSecret() ([]byte, error) {
+	location, exists := os.LookupEnv("FIRESTORE_SERVICE_ACCOUNT_PATH")
+	value, valueExists := os.LookupEnv("FIRESTORE_SERVICE_ACCOUNT_JSON")
+
+	if !exists && !valueExists {
+		return []byte{}, fmt.Errorf("FIRESTORE_SERVICE_ACCOUNT_PATH and FIRESTORE_SERVICE_ACCOUNT_JSON not set")
+	}
+
+	if exists {
+		value, err := os.ReadFile(location)
+		return value, err
+	}
+
+	decodedBytes, err := base64.StdEncoding.DecodeString(value)
+
+	if err != nil {
+		return []byte{}, err
+	}
+
+	return decodedBytes, nil
 }
