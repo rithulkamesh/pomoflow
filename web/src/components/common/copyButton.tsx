@@ -16,7 +16,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ link }) => {
     setCopied(true);
 
     void navigator.clipboard.writeText(
-      "https://pomoflow.rithul.dev/session/" + link
+      "https://pomoflow.io/session/" + link
     );
     toast({
       title: "Link Copied!",
