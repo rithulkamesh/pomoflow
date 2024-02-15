@@ -124,9 +124,8 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             disabled={actionsDisabled}
             onClick={() => handleTimerTypeChange(type)}
             className={cn(
-              "font-regular",
               timerType === type &&
-                "bg-[#D6A27B] text-black hover:bg-[#D6A27B] hover:text-black"
+              "bg-[#D6A27B] text-black hover:bg-[#D6A27B] hover:text-black"
             )}>
             {type}
           </Button>
@@ -135,18 +134,17 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
 
       <div className="py-0.5" />
 
-      <h1 className="text-center text-6xl font-regular flex items-center justify-center">
+      <h1 className="text-center text-6xl flex items-center justify-center">
         {formatTime(timeRemaining)}
       </h1>
       <div className="flex items-center justify-center">
         {[1, 2, 3, 4].map((dot) => (
           <div
             key={dot}
-            className={`h-2 w-2 rounded-full mx-1 ${
-              dot <= completedSessions
+            className={`h-2 w-2 rounded-full mx-1 ${dot <= completedSessions
                 ? "dark:bg-white bg-black"
                 : "dark:bg-zinc-800 bg-gray-200"
-            }`}
+              }`}
           />
         ))}
       </div>
