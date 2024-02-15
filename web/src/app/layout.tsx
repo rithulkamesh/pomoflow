@@ -3,7 +3,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 
-const poppins = Poppins({ subsets: ["latin"], weight: ["100", "400", "700"] });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "400", "500", "700"],
+  display: "block",
+});
 
 export default function RootLayout({
   children,
