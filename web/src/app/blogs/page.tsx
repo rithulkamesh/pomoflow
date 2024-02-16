@@ -60,22 +60,16 @@ const Blogs: React.FC = () => {
           {blogs.map((blog: Blog) => (
             <Link href={"/blogs/" + blog.slug} passHref key={blog.slug}>
               <Card>
-                <CardContent className="my-auto flex justify-between p-2 px-5">
+                <CardContent className="my-auto flex justify-between p-2 px-5 m-7 ml-2">
                   <div className="flex flex-col justify-center text-left">
                     <CardTitle className="text-lg font-bold text-2xl">
                       {blog.meta.title}
                     </CardTitle>
+
                     <CardDescription className="text-gray-400">
                       {blog.meta.author} - {blog.meta.date}
                     </CardDescription>
                   </div>
-                  <Image
-                    src={blog.meta.image}
-                    alt={blog.meta.title}
-                    width={300}
-                    height={200}
-                    className="rounded-md"
-                  />
                 </CardContent>
               </Card>
             </Link>
