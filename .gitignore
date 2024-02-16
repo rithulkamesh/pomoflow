@@ -51,6 +51,3 @@ pomoflow-service-account-key.json
 
 # turborepo
 .turbo
-
-# dev scripts
-keep-alive.sh
