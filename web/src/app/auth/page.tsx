@@ -34,7 +34,7 @@ export default function AuthenticationPage() {
             </div>
             <UserAuthForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
-              You're one step away from collaborative focus!
+              You&apos;re one step away from collaborative focus!
             </p>
           </div>
         </div>
