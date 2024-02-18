@@ -116,13 +116,14 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
 
   return (
     <Card className="py-5 px-14 flex flex-col gap-5 border-0 animate-in fade-in-0">
-      <div className="flex gap-2 justify-center">
+      <div className="flex md:gap-2 gap-[0.5] justify-center px-3">
         {Object.values(TimerType).map((type) => (
           <Button
             key={type}
             variant="ghost"
             disabled={actionsDisabled}
             onClick={() => handleTimerTypeChange(type)}
+            size={window.innerWidth < 768 ? "sm" : "default"}
             className={cn(
               timerType === type &&
                 "bg-[#D6A27B] text-black hover:bg-[#D6A27B] hover:text-black"

@@ -9,7 +9,6 @@ const Page: React.FC = () => {
   const router = useRouter();
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      {/* A big title saying 404, and a button to return home */}
       <div className="flex flex-col text-center">
         <h1 className="text-8xl">404</h1>
         <p className="text-2xl">Ahoy there cowboy! You seem lost.</p>

@@ -11,9 +11,13 @@ import { TimerType } from "./timer";
 
 export const TimerLoading = () => (
   <Card className="py-5 px-14 flex flex-col gap-4 border-0 animate-in fade-in-0">
-    <div className="flex gap-2 justify-center">
+    <div className="flex gap-2 justify-center md:gap-2 gap-[0.5] px-3">
       {Object.values(TimerType).map((type) => (
-        <Button key={type} variant="ghost" className={`font-regular`}>
+        <Button
+          key={type}
+          variant="ghost"
+          className={`font-regular`}
+          size={window.innerWidth < 768 ? "sm" : "default"}>
           {type}
         </Button>
       ))}

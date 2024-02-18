@@ -1,7 +1,7 @@
-import Logo from "@/components/logo";
 import ThemeSwitcher from "@/components/theme/theme-switcher";
 import { Metadata } from "next";
 import { UserAuthForm } from "./user-auth-form";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Pomotimer | Auth",
@@ -18,7 +18,13 @@ export default function AuthenticationPage() {
         <div className="lg:p-8">
           <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
             <div className="flex flex-col space-y-2 text-center">
-              <Logo className="w-16 h-16 mx-auto mb-3" />
+              <Image
+                src="/pomoflow-logo.svg"
+                alt="Pomoflow"
+                className={`w-auto h-16 w-16`}
+                width={16}
+                height={16}
+              />
               <h1 className="text-2xl font-semibold tracking-tight">
                 Authenticate
               </h1>
@@ -28,8 +34,7 @@ export default function AuthenticationPage() {
             </div>
             <UserAuthForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
-              If you don&apos;t have an account, it will be created
-              automatically.
+              You're one step away from collaborative focus!
             </p>
           </div>
         </div>
