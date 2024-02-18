@@ -22,4 +22,4 @@ Used to certain shield session activities from the frontend to prevent unauthori
 
 ## License
 
-This project is licensed under [MIT license](./LICENSE), Any contributions will be taken under it, Accredition is appreciated but not necessary. A humble request to use the software for ethical reasons only.
+This project is licensed under [AGPL v3](./LICENSE), Any contributions will be taken under it, Accredition is appreciated but not necessary. A humble request to use the software for ethical reasons only.
