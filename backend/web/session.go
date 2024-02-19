@@ -82,7 +82,7 @@ func CheckSessionHealth(fs *firestore.Client, sessionID string) error {
 	}
 
 	if len(guests) == 0 {
-		_, err := fs.Doc("sessions/"+sessionID).Update(context.Background(), []firestore.Update{{Path: "delted", Value: true}})
+		_, err := fs.Doc("sessions/"+sessionID).Update(context.Background(), []firestore.Update{{Path: "deleted", Value: true}})
 		if err != nil {
 			return fmt.Errorf("error deleting session")
 		}
