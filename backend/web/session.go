@@ -67,11 +67,15 @@ func CheckSessionHealth(fs *firestore.Client, sessionID string) error {
 	fmt.Println("Checking health for session", sessionID, " with ", len(guests), " guests")
 
 	for i, guest := range guests {
+		fmt.Println(("Guest last ping time: "), guest.LastPingTime)
 		if int(time.Now().Unix())-guest.LastPingTime > 30 {
+			fmt.Println("Deleting guest", guest.ID)
 			_, err := fs.Doc("sessions/" + sessionID + "/guests/" + guest.ID).Delete(context.Background())
 			if err != nil {
 				return fmt.Errorf("error deleting guest")
 			}
+
+			fmt.Println("Deleting guest from array")
 
 			prevLength := len(guests)
 			guests = append(guests[:i-1], guests[i+1:]...)
@@ -79,7 +83,6 @@ func CheckSessionHealth(fs *firestore.Client, sessionID string) error {
 			if len(guests) == prevLength {
 				fmt.Printf("Guest not deleted, array length is %v", len(guests))
 			}
-
 		}
 	}
 
