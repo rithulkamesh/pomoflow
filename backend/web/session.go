@@ -18,10 +18,9 @@ type Session struct {
 	PomodoroTime      int       `json:"pomodoroTime" firestore:"pomodoroTime"`
 	ShortBreakTime    int       `json:"shortBreakTime" firestore:"shortBreakTime"`
 	LongBreakTime     int       `json:"longBreakTime" firestore:"longBreakTime"`
-	// Guests            []string  `json:"guests" firestore:"guests"`
-	PausedTimes     []Pauses `json:"pausedTimes" firestore:"pausedTimes"`
-	StartTime       int      `json:"startTime" firestore:"startTime"`
-	LastHealthCheck int      `json:"lastPingTime" firestore:"lastHealthCheck"`
+	PausedTimes       []Pauses  `json:"pausedTimes" firestore:"pausedTimes"`
+	StartTime         int       `json:"startTime" firestore:"startTime"`
+	LastHealthCheck   int       `json:"lastPingTime" firestore:"lastHealthCheck"`
 
 	CreatedAt int `json:"createdAt" firestore:"createdAt"`
 }
@@ -83,7 +82,7 @@ func CheckSessionHealth(fs *firestore.Client, sessionID string) error {
 	}
 
 	if len(guests) == 0 {
-		_, err := fs.Doc("sessions/" + sessionID).Delete(context.Background())
+		_, err := fs.Doc("sessions/"+sessionID).Update(context.Background(), []firestore.Update{{Path: "delted", Value: true}})
 		if err != nil {
 			return fmt.Errorf("error deleting session")
 		}
