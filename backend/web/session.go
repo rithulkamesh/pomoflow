@@ -64,6 +64,8 @@ func CheckSessionHealth(fs *firestore.Client, sessionID string) error {
 		guests = append(guests, guest)
 	}
 
+	fmt.Println("Checking health for session", sessionID, " with ", len(guests), " guests")
+
 	for i, guest := range guests {
 		if int(time.Now().Unix())-guest.LastPingTime > 30 {
 			_, err := fs.Doc("sessions/" + sessionID + "/guests/" + guest.ID).Delete(context.Background())
@@ -82,11 +84,13 @@ func CheckSessionHealth(fs *firestore.Client, sessionID string) error {
 	}
 
 	if len(guests) == 0 {
+		fmt.Println("Deleting session", sessionID)
 		_, err := fs.Doc("sessions/"+sessionID).Update(context.Background(), []firestore.Update{{Path: "deleted", Value: true}})
 		if err != nil {
 			return fmt.Errorf("error deleting session")
 		}
 	} else {
+		fmt.Println("Updating session", sessionID, " with ", len(guests), " guests")
 		_, err := fs.Doc("sessions/"+sessionID).Update(context.Background(), []firestore.Update{{Path: "lastHealthCheck", Value: int(time.Now().Unix())}})
 		if err != nil {
 			return fmt.Errorf("error updating session")
