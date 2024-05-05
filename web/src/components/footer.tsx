@@ -1,6 +1,7 @@
 import { IoDocument, IoLogoGithub } from "react-icons/io5";
 import { WithTooltip } from "./common/withTooltip";
 import { TooltipProvider } from "./ui/tooltip";
+import { FaDiscord } from "react-icons/fa6";
 
 const Footer: React.FC = () => {
   return (
@@ -29,6 +30,11 @@ const Footer: React.FC = () => {
           <WithTooltip text={"Blog"}>
             <a href="/blogs" className="underline">
               <IoDocument size={25} />
+            </a>
+          </WithTooltip>
+          <WithTooltip text={"Community"}>
+            <a href="https://discord.gg/GvEQAnZ9xr" className="underline">
+              <FaDiscord size={25} />
             </a>
           </WithTooltip>
         </div>

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import PomodoroCard, { TimerType } from "@/components/dash/timer";
