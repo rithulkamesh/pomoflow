@@ -116,6 +116,23 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [volume]);
 
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+    const handleMediaQueryChange = (event: any) => {
+      setIsSmallScreen(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleMediaQueryChange);
+    handleMediaQueryChange(mediaQuery);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleMediaQueryChange);
+    };
+  }, []);
+
   return (
     <Card className="py-5 px-14 flex flex-col gap-5 border-0 animate-in fade-in-0">
       <div className="flex md:gap-2 gap-[0.5] justify-center px-3">
@@ -125,7 +142,7 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
             variant="ghost"
             disabled={actionsDisabled}
             onClick={() => handleTimerTypeChange(type)}
-            size={window.innerWidth < 768 ? "sm" : "default"}
+            size={isSmallScreen ? "sm" : "default"}
             className={cn(
               timerType === type &&
                 "bg-[#D6A27B] text-black hover:bg-[#D6A27B] hover:text-black"

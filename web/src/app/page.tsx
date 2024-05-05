@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import PomodoroCard, { TimerType } from "@/components/dash/timer";
@@ -18,10 +19,6 @@ import { cn } from "@/lib/utils";
 
 export default function Home() {
   const dummy = () => {};
-  const [loaded, setLoaded] = useState(false);
-  useEffect(() => {
-    setLoaded(true);
-  }, []);
   return (
     <section
       id="home-section"
@@ -41,22 +38,20 @@ export default function Home() {
           Focus with your friends right from your browser ✨
         </div>
         <div className="mt-6 rounded md:border md:border-[0.5px] md:border-white overflow-hidden max-w-[100vw] w-full">
-          {loaded && (
-            <PomodoroCard
-              timerType={TimerType.Pomodoro}
-              timeRemaining={329}
-              completedSessions={2}
-              pomodoroTime={25}
-              longBreakTime={15}
-              shortBreakTime={5}
-              resetTimer={dummy}
-              updateTimer={dummy}
-              toggleTimer={dummy}
-              handleTimerTypeChange={dummy}
-              playAudio={dummy}
-              isRunning={false}
-            />
-          )}
+          <PomodoroCard
+            timerType={TimerType.Pomodoro}
+            timeRemaining={329}
+            completedSessions={2}
+            pomodoroTime={25}
+            longBreakTime={15}
+            shortBreakTime={5}
+            resetTimer={dummy}
+            updateTimer={dummy}
+            toggleTimer={dummy}
+            handleTimerTypeChange={dummy}
+            playAudio={dummy}
+            isRunning={false}
+          />
         </div>
       </div>
       <div className="mt-5">
