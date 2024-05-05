@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client";
 
 import { TimerLoading } from "@/components/dash/timerLoading";

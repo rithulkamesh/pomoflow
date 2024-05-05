@@ -121,8 +121,10 @@ const PomodoroCard: React.FC<PomodoroCardProps> = ({
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleMediaQueryChange = (event: any) => {
-      setIsSmallScreen(event.matches);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      setIsSmallScreen(!!event.matches);
     };
 
     mediaQuery.addEventListener("change", handleMediaQueryChange);

@@ -7,7 +7,6 @@ import Header from "@/components/home/header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import { FaArrowRight, FaChevronRight } from "react-icons/fa6";
-import { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
