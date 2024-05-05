@@ -33,7 +33,7 @@ const Header: React.FC = () => {
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <NotionAvatar name={auth.currentUser?.displayName || "Dummy User"} />
+          <NotionAvatar name={auth.currentUser?.displayName ?? "Dummy User"} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="ml-2 mt-1 p-0">
           <DropdownMenuLabel>
