@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
           </a>
           .
         </p>
-        <div className="flex gap-2 items-center justify-center mt-3">
+        <div className="flex gap-2 items-center justify-center my-3">
           <WithTooltip text={"GitHub"}>
             <a
               href="https://github.com/rithulkamesh/pomoflow"
