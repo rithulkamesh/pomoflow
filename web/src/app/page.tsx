@@ -6,9 +6,14 @@ import Header from "@/components/home/header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const dummy = () => {};
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    setLoaded(true);
+  }, []);
   return (
     <section
       id="home-section"
@@ -28,22 +33,24 @@ export default function Home() {
           Focus with your friends right from your browser ✨
         </div>
 
-        <div className="mt-6 rounded md:border md:border-white overflow-hidden w-full">
-          <PomodoroCard
-            timerType={TimerType.Pomodoro}
-            timeRemaining={329}
-            completedSessions={2}
-            pomodoroTime={25}
-            longBreakTime={15}
-            shortBreakTime={5}
-            resetTimer={dummy}
-            updateTimer={dummy}
-            toggleTimer={dummy}
-            handleTimerTypeChange={dummy}
-            playAudio={dummy}
-            isRunning={false}
-          />
-        </div>
+        {loaded && (
+          <div className="mt-6 rounded md:border md:border-[0.5px] md:border-white overflow-hidden w-full">
+            <PomodoroCard
+              timerType={TimerType.Pomodoro}
+              timeRemaining={329}
+              completedSessions={2}
+              pomodoroTime={25}
+              longBreakTime={15}
+              shortBreakTime={5}
+              resetTimer={dummy}
+              updateTimer={dummy}
+              toggleTimer={dummy}
+              handleTimerTypeChange={dummy}
+              playAudio={dummy}
+              isRunning={false}
+            />
+          </div>
+        )}
       </div>
     </section>
   );
