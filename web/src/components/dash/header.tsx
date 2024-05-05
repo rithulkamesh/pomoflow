@@ -33,31 +33,41 @@ const Header: React.FC = () => {
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <NotionAvatar name={auth.currentUser!.displayName!} />
+          <NotionAvatar name={auth.currentUser?.displayName || "Dummy User"} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="ml-2 mt-1 p-0">
           <DropdownMenuLabel>
-            <Button
-              variant="link"
-              onClick={() => {
-                void signOut(auth)
-                  .catch((e) => {
-                    let message = "Couldn't log out";
+            {auth.currentUser ? (
+              <Button
+                variant="link"
+                onClick={() => {
+                  void signOut(auth)
+                    .catch((e) => {
+                      let message = "Couldn't log out";
 
-                    if (e instanceof Error) {
-                      message = e.message;
-                    }
+                      if (e instanceof Error) {
+                        message = e.message;
+                      }
 
-                    toast({
-                      title: "Error",
-                      description: message,
-                      variant: "destructive",
-                    });
-                  })
-                  .then(() => router.push("/"));
-              }}>
-              Log out
-            </Button>
+                      toast({
+                        title: "Error",
+                        description: message,
+                        variant: "destructive",
+                      });
+                    })
+                    .then(() => router.push("/"));
+                }}>
+                Log out
+              </Button>
+            ) : (
+              <Button
+                variant="link"
+                onClick={() => {
+                  router.push("/auth");
+                }}>
+                Log In
+              </Button>
+            )}
           </DropdownMenuLabel>
         </DropdownMenuContent>
       </DropdownMenu>

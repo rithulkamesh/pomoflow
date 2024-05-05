@@ -5,7 +5,7 @@ import Timer, { TimerType } from "@/components/dash/timer";
 import { TimerLoading } from "@/components/dash/timerLoading";
 import { useToast } from "@/components/ui/use-toast";
 import { usePomoSFX } from "@/hooks/usePomoSFX";
-import { volumeAtom } from "@/lib/atoms";
+import { userConfigAtom, volumeAtom } from "@/lib/atoms";
 import { auth, db } from "@/lib/firebase";
 import { camelize, playAudio } from "@/lib/utils";
 import axios from "axios";
@@ -25,12 +25,7 @@ const Dash: React.FC = () => {
   const { toast } = useToast();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const [userConfig, setUserConfig] = useState<UserConfig>({
-    id: "",
-    pomodoroTime: 25,
-    shortBreakTime: 5,
-    longBreakTime: 15,
-  });
+  const [userConfig, setUserConfig] = useAtom(userConfigAtom);
   const [volume] = useAtom(volumeAtom);
   const [isRunning, setIsRunning] = useState(false);
   const [completedSessions, setCompletedSessions] = useState(0);
@@ -75,17 +70,21 @@ const Dash: React.FC = () => {
   };
 
   const updateTimer = (newTime: number, type: TimerType) => {
+    setUserConfig({
+      ...userConfig,
+      [camelize(type) + "Time"]: newTime,
+    });
+
     if (!auth.currentUser?.uid) return;
 
     const ref = doc(db, "users", auth.currentUser.uid);
-    setUserConfig({ ...userConfig, [type + "Time"]: newTime });
     void updateDoc(ref, {
       [camelize(type.replace(/ /g, "")) + "Time"]: newTime,
     });
   };
 
   useEffect(() => {
-    if (!auth.currentUser?.uid) return;
+    if (!auth.currentUser?.uid) return setLoading(false);
     const ref = doc(db, "users", auth.currentUser.uid);
 
     const unsubscribe = onSnapshot(
@@ -152,7 +151,15 @@ const Dash: React.FC = () => {
   }, [userConfig]);
 
   const createSession = () => {
-    if (!auth.currentUser?.uid) return;
+    if (!auth.currentUser?.uid) {
+      toast({
+        title: "Please sign in to proceed",
+        description:
+          "Please authorize yourself so that we can ensure a safe collaborative experience.",
+      });
+
+      return router.push("/auth");
+    }
     setLoading(true);
 
     (async () => {
