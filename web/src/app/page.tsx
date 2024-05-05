@@ -1,55 +1,50 @@
-import Footer from "@/components/footer";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import Link from "next/link";
-import { FaChevronRight } from "react-icons/fa";
+"use client";
+
+import PomodoroCard, { TimerType } from "@/components/dash/timer";
 import "./home.css";
+import Header from "@/components/home/header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
+import { FaArrowRight } from "react-icons/fa6";
 
 export default function Home() {
+  const dummy = () => {};
   return (
     <section
       id="home-section"
-      className="w-full min-h-screen flex items-center justify-center flex-col group">
-      <div className="flex gap-2 items-center flex-col">
-        <Image
-          className="group-active:rotate-12 transition-transform animate-in fade-in-0 zoom-in-0"
-          src="/pomoflow-logo.svg"
-          alt="hi there"
-          width={128}
-          height={128}
-        />
-        <div className="px-2 py-0.5 rounded-full text-pomo bg-transparent border-2 border-pomo text-[0.6rem]">
-          Beta
+      className="w-full min-h-screen flex items-center flex-col group">
+      <Header />
+
+      <div className="mt-[10vh] flex flex-col items-center text-center max-w-15">
+        <Link href="/blogs/pomoflow-v1">
+          <Alert className="py-1 rounded-full mb-3 w-full">
+            <AlertDescription className="flex h-full w-full text-center items-center justify-center gap-1 font-light">
+              Why we built Pomoflow? <FaArrowRight opacity={0.9} />
+            </AlertDescription>
+          </Alert>
+        </Link>
+        <div className="text-3xl">Collaborative Focus</div>
+        <div className="text-sm text-gray-400 mx-14 md:mx-0 mb-3">
+          Focus with your friends right from your browser ✨
         </div>
 
-        <h1 className="text-5xl font-medium">Pomoflow</h1>
-        <p className="">Stay in focus. Together.</p>
+        <div className="mt-6 rounded md:border md:border-white overflow-hidden w-full">
+          <PomodoroCard
+            timerType={TimerType.Pomodoro}
+            timeRemaining={329}
+            completedSessions={2}
+            pomodoroTime={25}
+            longBreakTime={15}
+            shortBreakTime={5}
+            resetTimer={dummy}
+            updateTimer={dummy}
+            toggleTimer={dummy}
+            handleTimerTypeChange={dummy}
+            playAudio={dummy}
+            isRunning={false}
+          />
+        </div>
       </div>
-
-      <div className="mt-8">
-        <Link href={"/dash"}>
-          <div className="relative">
-            <button
-              className={cn(
-                "px-6 py-2 text-sm rounded-lg h-10 group bg-pomo z-10",
-                "text-black border-2 border-pomo transition",
-                "flex items-center gap-2 justify-center",
-                "hover:brightness-90",
-                "hover:translate-x-1 hover:-translate-y-1 relative active:translate-y-0 active:translate-x-0"
-              )}>
-              <span className="text-sm">Get Started</span>
-
-              <FaChevronRight
-                size={16}
-                className="group-hover:translate-x-2 transition-transform"
-              />
-            </button>
-
-            <div className="absolute inset-0 rounded-lg bg-pomo brightness-50 group-hover:opacity-100 z-0" />
-          </div>
-        </Link>
-      </div>
-      <Footer />
     </section>
   );
 }
