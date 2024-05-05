@@ -28,13 +28,13 @@ export default function Home() {
             </AlertDescription>
           </Alert>
         </Link>
-        <div className="text-3xl">Collaborative Focus</div>
-        <div className="text-sm text-gray-400 mx-14 md:mx-0 mb-3">
+        <div className="text-2xl md:text-3xl md:mx-0 ">Collaborative Focus</div>
+        <div className="text-xs md:text-sm text-gray-400 mx-14 md:mx-0 mb-3">
           Focus with your friends right from your browser ✨
         </div>
 
         {loaded && (
-          <div className="mt-6 rounded md:border md:border-[0.5px] md:border-white overflow-hidden w-full">
+          <div className="mt-6 rounded md:border md:border-[0.5px] md:border-white overflow-hidden max-w-[100vw] w-full">
             <PomodoroCard
               timerType={TimerType.Pomodoro}
               timeRemaining={329}
