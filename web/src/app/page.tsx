@@ -14,7 +14,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Footer from "@/components/footer";
-import { TimerLoading } from "@/components/dash/timerLoading";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
