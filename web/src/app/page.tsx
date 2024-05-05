@@ -42,7 +42,7 @@ export default function Home() {
           Focus with your friends right from your browser ✨
         </div>
         <div className="mt-6 rounded md:border md:border-[0.5px] md:border-white overflow-hidden max-w-[100vw] w-full">
-          {loaded ? (
+          {loaded && (
             <PomodoroCard
               timerType={TimerType.Pomodoro}
               timeRemaining={329}
@@ -57,8 +57,6 @@ export default function Home() {
               playAudio={dummy}
               isRunning={false}
             />
-          ) : (
-            <TimerLoading />
           )}
         </div>
       </div>
