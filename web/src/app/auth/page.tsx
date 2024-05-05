@@ -4,7 +4,7 @@ import { UserAuthForm } from "./user-auth-form";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Pomotimer | Auth",
+  title: "Pomoflow | Auth",
   description: "Please identify yourself to proceed.",
 };
 
