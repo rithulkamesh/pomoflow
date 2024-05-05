@@ -5,7 +5,7 @@ import "./home.css";
 import Header from "@/components/home/header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
-import { FaArrowRight } from "react-icons/fa6";
+import { FaArrowRight, FaChevronRight } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import {
   Accordion,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/accordion";
 import Footer from "@/components/footer";
 import { TimerLoading } from "@/components/dash/timerLoading";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const dummy = () => {};
@@ -61,7 +62,28 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div className="flex mt-[10vh] flex-col items-center font-light w-[42vh]">
+      <div className="mt-5">
+        <Link href={"/dash"}>
+          <div className="relative">
+            <button
+              className={cn(
+                "px-6 py-2 text-sm rounded-lg h-10 group bg-pomo z-10",
+                "text-black border-2 border-pomo transition",
+                "flex items-center gap-2 justify-center",
+                "hover:brightness-90",
+                "hover:translate-x-1 hover:-translate-y-1 relative active:translate-y-0 active:translate-x-0"
+              )}>
+              <span className="text-sm">Get Started</span>
+
+              <FaChevronRight
+                size={16}
+                className="group-hover:translate-x-2 transition-transform"
+              />
+            </button>
+          </div>
+        </Link>
+      </div>
+      <div className="flex mt-[5vh] flex-col items-center font-light w-[42vh]">
         <div className="text-xl md:mx-0 mx-3 text-regular">FAQ</div>
         <div className="w-full">
           <Accordion type="single" collapsible>
@@ -71,9 +93,9 @@ export default function Home() {
               </AccordionTrigger>
               <AccordionContent>
                 The Pomodoro Technique is a time management method that involves
-                working in focused intervals of 25 minutes, called "pomodoros,"
-                followed by short breaks, to increase productivity and avoid
-                burnout.
+                working in focused intervals of 25 minutes, called
+                &ldquo;pomodoros,&rdquo; followed by short breaks, to increase
+                productivity and avoid burnout.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">

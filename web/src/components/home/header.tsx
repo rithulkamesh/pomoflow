@@ -1,8 +1,8 @@
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import Image from "next/image";
-import Link from "next/link";
+// import Link from "next/link";
 import React from "react";
-import { RxHamburgerMenu } from "react-icons/rx";
+// import { RxHamburgerMenu } from "react-icons/rx";
 
 const Header: React.FC = () => {
   return (
@@ -17,6 +17,7 @@ const Header: React.FC = () => {
         />
         <div>Pomoflow</div>
       </div>
+      {/*
       <div className="h-full items-center justify-center mx-3 md:flex hidden">
         <Link href="/dash">
           <button
@@ -35,6 +36,7 @@ const Header: React.FC = () => {
           <RxHamburgerMenu />
         </button>
       </div>
+      */}
     </div>
   );
 };
