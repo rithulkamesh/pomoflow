@@ -4,8 +4,9 @@ import { UserConfigType } from "./atoms";
 
 export const getTimeByType = (
   timerType: TimerType,
-  session: SessionDoc | UserConfigType
+  session: SessionDoc | UserConfigType | null
 ) => {
+  if (!session) return 0;
   const { pomodoroTime, shortBreakTime, longBreakTime } = session;
 
   const timeMapping: Record<TimerType, number> = {
