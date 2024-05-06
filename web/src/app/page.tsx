@@ -159,7 +159,7 @@ export default function Home() {
           </div>
         </Link>
       </div>
-      <div className="flex mt-[5vh] flex-col items-center font-light w-[42vh]">
+      <div className="flex mt-[5vh] flex-col items-center font-light w-[60vh]">
         <div className="text-xl md:mx-0 mx-3 text-regular">FAQ</div>
         <div className="w-full">
           <Accordion type="single" collapsible>
