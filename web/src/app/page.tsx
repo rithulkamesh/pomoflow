@@ -13,10 +13,96 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Footer from "@/components/footer";
-import { cn } from "@/lib/utils";
+import { camelize, cn, playAudio } from "@/lib/utils";
+import { usePomoSFX } from "@/hooks/usePomoSFX";
+import { getTimeByType } from "@/lib/time";
+import { useEffect, useState } from "react";
+import { useAtom } from "jotai";
+import { userConfigAtom, volumeAtom } from "@/lib/atoms";
 
 export default function Home() {
-  const dummy = () => {};
+  const { play } = usePomoSFX();
+
+  const [userConfig, setUserConfig] = useAtom(userConfigAtom);
+  const [volume] = useAtom(volumeAtom);
+  const [isRunning, setIsRunning] = useState(false);
+  const [completedSessions, setCompletedSessions] = useState(0);
+  const [timerType, setTimerType] = useState(TimerType.Pomodoro);
+  const [timeRemaining, setTimeRemaining] = useState(
+    userConfig.pomodoroTime * 60
+  );
+  const [, setCurrentBreakType] = useState(TimerType.Pomodoro);
+
+  const handleTimerTypeChange = (newTimerType: TimerType) => {
+    const newTime = getTimeByType(newTimerType, userConfig);
+    setTimeRemaining(newTime * 60);
+    setIsRunning(false);
+    setTimerType(newTimerType);
+  };
+
+  const toggleTimer = () => {
+    play("click");
+    if (timeRemaining > 0) {
+      setIsRunning((prevState) => !prevState);
+    }
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    setTimeRemaining(getTimeByType(timerType, userConfig) * 60);
+    setCompletedSessions(0);
+  };
+
+  const updateTimer = (newTime: number, type: TimerType) => {
+    setUserConfig({
+      ...userConfig,
+      [camelize(type) + "Time"]: newTime,
+    });
+  };
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (isRunning) {
+      if (timeRemaining <= 0) {
+        setIsRunning(false);
+        playAudio("/sfx/timercomplete.mp3", volume / 100);
+
+        if (timerType === TimerType.Pomodoro) {
+          setCompletedSessions((prevSessions) => prevSessions + 1);
+        }
+
+        const isLongBreak =
+          completedSessions > 0 && completedSessions % 4 === 0;
+        const newType = isLongBreak
+          ? TimerType.LongBreak
+          : TimerType.ShortBreak;
+
+        setTimerType(newType);
+        setTimeRemaining(getTimeByType(newType, userConfig) * 60);
+      } else {
+        timer = setInterval(() => {
+          setTimeRemaining((prevTime) => prevTime - 1);
+        }, 1000);
+      }
+    }
+
+    return () => clearInterval(timer);
+  }, [isRunning, timeRemaining, completedSessions, timerType, volume]);
+
+  useEffect(() => {
+    const isLongBreak = completedSessions > 0 && completedSessions % 4 === 0;
+    const newBreakType = isLongBreak
+      ? TimerType.LongBreak
+      : TimerType.ShortBreak;
+    setCurrentBreakType(newBreakType);
+  }, [completedSessions]);
+
+  useEffect(() => {
+    setTimeRemaining(getTimeByType(timerType, userConfig) * 60);
+    setCompletedSessions(0);
+  }, [userConfig]);
+
   return (
     <section
       id="home-section"
@@ -37,18 +123,18 @@ export default function Home() {
         </div>
         <div className="mt-6 rounded md:border md:border-[0.5px] md:border-white overflow-hidden max-w-[100vw] w-full">
           <PomodoroCard
-            timerType={TimerType.Pomodoro}
-            timeRemaining={329}
-            completedSessions={2}
-            pomodoroTime={25}
-            longBreakTime={15}
-            shortBreakTime={5}
-            resetTimer={dummy}
-            updateTimer={dummy}
-            toggleTimer={dummy}
-            handleTimerTypeChange={dummy}
-            playAudio={dummy}
-            isRunning={false}
+            timerType={timerType}
+            timeRemaining={timeRemaining}
+            completedSessions={completedSessions}
+            pomodoroTime={userConfig.pomodoroTime}
+            longBreakTime={userConfig.longBreakTime}
+            shortBreakTime={userConfig.shortBreakTime}
+            resetTimer={resetTimer}
+            updateTimer={updateTimer}
+            toggleTimer={toggleTimer}
+            handleTimerTypeChange={handleTimerTypeChange}
+            playAudio={play}
+            isRunning={isRunning}
           />
         </div>
       </div>

@@ -1,12 +1,11 @@
 import { TimerType } from "@/components/dash/timer";
 import { SessionDoc } from "@/components/sessions/SessionPage";
+import { UserConfigType } from "./atoms";
 
 export const getTimeByType = (
   timerType: TimerType,
-  session: SessionDoc | null
+  session: SessionDoc | UserConfigType
 ) => {
-  if (!session) return 0;
-
   const { pomodoroTime, shortBreakTime, longBreakTime } = session;
 
   const timeMapping: Record<TimerType, number> = {

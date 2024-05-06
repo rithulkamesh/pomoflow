@@ -76,7 +76,6 @@ const Dash: React.FC = () => {
     });
 
     if (!auth.currentUser?.uid) return;
-
     const ref = doc(db, "users", auth.currentUser.uid);
     void updateDoc(ref, {
       [camelize(type.replace(/ /g, "")) + "Time"]: newTime,
