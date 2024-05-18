@@ -83,8 +83,6 @@ export default function Page({ params }: Props) {
           Math.floor(new Date().getTime() / 1000 - guest.lastPingTime) < 12
       );
 
-      console.log("setting guests", data);
-
       setGuests(data);
     });
 
